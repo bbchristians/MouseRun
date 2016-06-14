@@ -7,11 +7,14 @@ public class Grid : MonoBehaviour  {
     public int cols;
     public bool debug;
     public BlockingObstacle debugObstacle;
+    public OutOfBoundsObstacle oob; // To be returned when the player attempts to go out of bounds
 
     private Obstacle[][] grid;
+    
 
 	// Use this for initialization
 	void Start () {
+        // Initialize grid with EmptyObstacles
         grid = new Obstacle[rows][];
         for( int i = 0; i < cols; i++ )
         {
@@ -21,6 +24,7 @@ public class Grid : MonoBehaviour  {
                 grid[i][k] = new EmptyObstacle();
             }
         }
+        // Hard placement for debug purposes
         if( debug)
         {
             PlaceObstacle(debugObstacle, 2, 2);
@@ -31,7 +35,7 @@ public class Grid : MonoBehaviour  {
     public Obstacle Get(int row, int col)
     {
         if (row < 0 || col < 0 || row >= rows || col >= cols)
-            return new OutOfBoundsObstacle();
+            return oob ;
         return grid[row][col];
     }
 
