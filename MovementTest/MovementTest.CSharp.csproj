@@ -63,11 +63,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\BlockingObstacle.cs" />
-    <Compile Include="Assets\Scripts\EmptyObstacle.cs" />
     <Compile Include="Assets\Scripts\Grid.cs" />
-    <Compile Include="Assets\Scripts\Obstacle.cs" />
-    <Compile Include="Assets\Scripts\OutOfBoundsObstacle.cs" />
+    <Compile Include="Assets\Scripts\Init\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Init\InitObstacle.cs" />
+    <Compile Include="Assets\Scripts\ObstacleScripts\BlockingObstacle.cs" />
+    <Compile Include="Assets\Scripts\ObstacleScripts\Door\ButtonObstacle.cs" />
+    <Compile Include="Assets\Scripts\ObstacleScripts\Door\DoorObstacle.cs" />
+    <Compile Include="Assets\Scripts\ObstacleScripts\EmptyObstacle.cs" />
+    <Compile Include="Assets\Scripts\ObstacleScripts\Obstacle.cs" />
+    <Compile Include="Assets\Scripts\ObstacleScripts\OutOfBoundsObstacle.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

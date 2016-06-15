@@ -28,61 +28,27 @@ public class PlayerController : MonoBehaviour {
     {
         if (!canMove) return; // return if unable to move
 
-        // Check if movement would put player out of bounds
-        // Move if it wouldn't
-        // Update position
-        switch( direction)
+        // Attempt to move the player in the direction it is facing
+        switch (direction)
         {
-            /*
             case 0: // Move north
-                if (curRow >= grid.rows - 1) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(0, moveScale));
-                curRow++;
+                StartCoroutine(SmoothMove(1, 0));
                 break;
             case 90: // Move east
-                if (curCol >= grid.cols - 1) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(moveScale, 0));
-                curCol++;
+                StartCoroutine(SmoothMove(0, 1));
                 break;
             case 180: // Move south
-                if (curRow < 1) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(0, -moveScale));
-                curRow--;
+                StartCoroutine(SmoothMove(-1, 0));
                 break;
             case 270: // Move west
-                if (curCol < 1) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(-moveScale, 0));
-                curCol--;
-                break;
-            */
-            case 0: // Move north
-                if (!grid.CanMove(curRow+1, curCol)) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(0, moveScale));
-                curRow++;
-                break;
-            case 90: // Move east
-                if (!grid.CanMove(curRow, curCol+1)) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(moveScale, 0));
-                curCol++;
-                break;
-            case 180: // Move south
-                if (!grid.CanMove(curRow-1, curCol)) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(0, -moveScale));
-                curRow--;
-                break;
-            case 270: // Move west
-                if (!grid.CanMove(curRow, curCol-1)) break;
-                rb.MovePosition((Vector2)transform.position + new Vector2(-moveScale, 0));
-                curCol--;
+                StartCoroutine(SmoothMove(0, -1));
                 break;
         }
+
         if (debug)
         {
-            //Debug.Log("Currrent Position: (" + curCol + ", " + curRow + ")");
             Debug.Log("curRow: " + curRow + "\n" +
-                "curCol: " + curCol + "\n" +
-                "gridRows: " + grid.rows + "\n" +
-                "gridCols: " + grid.cols);
+                "curCol: " + curCol + "\n");
         }
     }
 
@@ -104,6 +70,35 @@ public class PlayerController : MonoBehaviour {
         transform.Rotate(Vector3.forward * -90);
     }
 
+    // Attempts to move the player in the requested direction
+    // If that space is occupied by a non-passable block, then the player
+    // bounce off of the spot and mvoe nowhere
+    // rowMove and colMove can be either 1, 0, or -1
+    IEnumerator SmoothMove(int rowMove, int colMove)
+    {
+        float remDist = moveScale; // The remaining distance to move the player
+        float thisMove; // Holds how much the player will move each frame
+        // Player begins moving slow, and picks up speed until they reach their final position
+        while( remDist > 0)
+        {
+            thisMove = Mathf.Round((moveScale - remDist) * 100f) / 100f; // Round
+            thisMove = Mathf.Max(thisMove, .01f); // Max is used to allow for startin the movement
+            thisMove = Mathf.Min(remDist, thisMove, .1f); // prevent from moving past the block
+            remDist -= thisMove;
+
+            Vector2 move = new Vector2(colMove * thisMove, rowMove * thisMove);
+            rb.MovePosition((Vector2)transform.position + move);
+
+            yield return new WaitForFixedUpdate(); // Wait for Fixed Update to assure MovePosition functions correctly
+        }
+        if( debug && remDist != 0)
+        {
+            Debug.Log("Imperfect movement detected: Ramaining Distance of " + remDist + " was not moved!");
+        }
+        curRow += rowMove;
+        curCol += colMove;
+    }
+
 	
 	// Update is called once per frame
 	void Update () {
@@ -113,4 +108,9 @@ public class PlayerController : MonoBehaviour {
             canMove = false;
         }
 	}
+
+    void FixedUpdate()
+    {
+
+    }
 }

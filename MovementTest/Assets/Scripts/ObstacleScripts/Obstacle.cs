@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract class Obstacle : MonoBehaviour {
+public abstract class Obstacle {
 
     private int rowPos, 
                 colPos;
