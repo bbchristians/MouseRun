@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour {
     public Collider2D victoryCollider; // The Collider2D of the victory object
     public float moveScale;// .64 32px^2 player model
     public bool debug;// Determines if information should be printed to the debug log
-    public Grid grid;// The grid the player will move across
 
 
 	// Use this for initialization
@@ -88,16 +87,17 @@ public class PlayerController : MonoBehaviour {
         {
             thisMove = Mathf.Round((distance - remDist) * 100f) / 100f; // Round
             thisMove = Mathf.Max(thisMove, .01f); // Max is used to allow the movement to start
-            thisMove = Mathf.Min(remDist, thisMove, .25f); // prevent from moving past the block or too fast
+            thisMove = Mathf.Min(remDist, thisMove, .1f); // prevent from moving past the block or too fast
 
             RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(colMove, rowMove), thisMove);
+            Debug.Log(hit.collider.gameObject.tag + ", " + hasCollided);
             if( hit.collider != null && hit.collider.gameObject.tag == "Blocking" && !hasCollided)
             {
                 hasCollided = true;
                 if( debug )
                     Debug.Log("Collision Detected!");
                 StartCoroutine(SmoothMove(-rowMove, -colMove, distance-remDist)); // Move in reverse direction until at original position
-                hasCollided = false;
+                
                 yield break; // Leave coroutine as to not finish forward movement
             }
             
@@ -114,7 +114,8 @@ public class PlayerController : MonoBehaviour {
         }
         curRow += (int)rowMove;
         curCol += (int)colMove;
-        canMove = true;// allow the player to move again
+        canMove = true; // allow the player to move again
+        hasCollided = false; // Resolve any collisions
     }
 
 	
