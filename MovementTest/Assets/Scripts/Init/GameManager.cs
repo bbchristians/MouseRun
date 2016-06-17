@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour {
     public string debugFilePath; // The file Path leading to the debug file
     public int boardDim; // The dimensions of the board (must be square)
     public int numObstacles; // The number of obstacles to randomly generate if not debugging
+    public int failGenerationsTimeoutCount; // Number of times the generator can fail to generate a solvable configuration before the system will time out
 
     //Prefab lists
     public GameObject[] basicObstaclePrefabs; // The BasicObstacle prefabs
@@ -18,6 +19,7 @@ public class GameManager : MonoBehaviour {
 
     private Queue preInitQueue; // The queue where information generated while loading from a file or through randomization will be generated
     private Queue initQueue; // The queue where the InitObstacles will be store for initialization
+    private int generationFailures;
 
     // Generates the initList from a file given by fileName
     private void ReadFile(string fileName)
@@ -37,7 +39,8 @@ public class GameManager : MonoBehaviour {
     // Generates the initList as random objects
     private void RandomList()
     {
-        for( int i = 0; i < numObstacles; i++)
+        preInitQueue = new Queue();
+        for ( int i = 0; i < numObstacles; i++)
         {
             int randRow = Random.Range(0, boardDim);
             int randCol = Random.Range(0, boardDim);
@@ -51,7 +54,9 @@ public class GameManager : MonoBehaviour {
     // Initialized later. After this step, all Queued InitObjects should be valid and ready to place.
     private void QueueInitObstacles()
     {
+        initQueue = new Queue();
         ArrayList occupiedCoordinates = new ArrayList(); // Contains Vector2s representing the occupied spaces in the grid
+        LayoutValidator validator = new LayoutValidator(boardDim); // The validator that will validate the layout of the objects in the queue after they are placed
 
         occupiedCoordinates.Add(new Vector2(0,0)); // Occupy player spawn
         occupiedCoordinates.Add(new Vector2(boardDim - 1, boardDim - 1)); // Occupy goal
@@ -63,10 +68,11 @@ public class GameManager : MonoBehaviour {
             iob = (InitObstacle)preInitQueue.Dequeue();
             Vector2 iobCoords = new Vector2(iob.getRow(), iob.getCol());
 
-            if( !iob.OutOfBounds(boardDim) && !occupiedCoordinates.Contains(iobCoords))
+            if( !iob.OutOfBounds(boardDim) && !ContainsCoords(occupiedCoordinates, iobCoords))
             {
                 initQueue.Enqueue(iob);
                 occupiedCoordinates.Add(iobCoords); // Occupy this object's coordinates
+                validator.AddObstacle(iob);
             } else if ( !debug )
             {
                 // Add a new initObstacle of the same type to the initList
@@ -78,13 +84,21 @@ public class GameManager : MonoBehaviour {
                 Debug.Log(iob + " Not added to initQueue.");
             }
         }
-    } 
 
-    // Not Implemented
-    private bool IsntOccupied(InitObstacle iob, ArrayList occupiedCoordinates)
-    {
-        return false;
-    }
+        // Determine if a valid configuration was generated
+        if( !debug)
+        {
+            if ( generationFailures >= failGenerationsTimeoutCount) return; // Exit if maximum generation failures is met
+            if ( !validator.IsSolvable())
+            {
+                //Debug.Log("Invalid configuration generated!\n preInitQueueItems: " + preInitQueue.Count + "\nInitQueueItems: " + 
+                //    initQueue.Count);
+                generationFailures++;
+                RandomList();
+                QueueInitObstacles();
+            }
+        }
+    } 
 
     // Generates the grid by populating it with GameObjects
     private void GenerateGrid()
@@ -141,9 +155,21 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    //Determines if coords is in coordList
+    public static bool ContainsCoords(ArrayList coordList, Vector2 coords)
+    {
+        foreach(Vector2 v2 in coordList)
+        {
+            Debug.Log("Comparing: " + v2.x + " and " + coords.x + ", " + v2.y + " and " + coords.y);
+            if (v2.x == coords.x && v2.y == coords.y) return true;
+        }
+        return false;
+    }
+
 	void Start () {
-        preInitQueue = new Queue();
-        initQueue = new Queue();
+        
+        
+        generationFailures = 0;
 
         // Generate initList from file
         if (debug)

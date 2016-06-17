@@ -33,4 +33,10 @@ public class InitObstacle {
     {
         return col;
     }
+
+    public bool CanBeMovedOn()
+    {
+        return false;
+        // return obstacleCode == ''; return true if the obstacle code matches a movable-on obstacle
+    }
 }

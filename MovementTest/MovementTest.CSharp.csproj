@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\Grid.cs" />
     <Compile Include="Assets\Scripts\Init\GameManager.cs" />
     <Compile Include="Assets\Scripts\Init\InitObstacle.cs" />
+    <Compile Include="Assets\Scripts\Init\LayoutValidator.cs" />
     <Compile Include="Assets\Scripts\ObstacleScripts\BlockingObstacle.cs" />
     <Compile Include="Assets\Scripts\ObstacleScripts\Door\ButtonObstacle.cs" />
     <Compile Include="Assets\Scripts\ObstacleScripts\Door\DoorObstacle.cs" />
