@@ -39,4 +39,9 @@ public class InitObstacle {
         return false;
         // return obstacleCode == ''; return true if the obstacle code matches a movable-on obstacle
     }
+
+    public override string ToString()
+    {
+        return obstacleCode + "@ (" + row + ", " + col + ")";
+    }
 }

@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour {
     // Generates the initList from a file given by fileName
     private void ReadFile(string fileName)
     {
+        preInitQueue = new Queue();
         StreamReader reader = new StreamReader(fileName);
         string line;
         string[] parts;
@@ -62,6 +63,7 @@ public class GameManager : MonoBehaviour {
         occupiedCoordinates.Add(new Vector2(boardDim - 1, boardDim - 1)); // Occupy goal
 
         InitObstacle iob;
+        int placedCount = 0;
 
         while( preInitQueue.Count > 0 )
         {
@@ -73,12 +75,14 @@ public class GameManager : MonoBehaviour {
                 initQueue.Enqueue(iob);
                 occupiedCoordinates.Add(iobCoords); // Occupy this object's coordinates
                 validator.AddObstacle(iob);
+                Debug.Log("Obstacle queued for placement at " + iobCoords);
+                placedCount++;
             } else if ( !debug )
             {
                 // Add a new initObstacle of the same type to the initList
                 int randRow = Random.Range(0, boardDim);
                 int randCol = Random.Range(0, boardDim);
-                initQueue.Enqueue(new InitObstacle(iob.GetCode(), randRow, randCol));
+                preInitQueue.Enqueue(new InitObstacle(iob.GetCode(), randRow, randCol));
             } else
             {
                 Debug.Log(iob + " Not added to initQueue.");
@@ -88,16 +92,23 @@ public class GameManager : MonoBehaviour {
         // Determine if a valid configuration was generated
         if( !debug)
         {
-            if ( generationFailures >= failGenerationsTimeoutCount) return; // Exit if maximum generation failures is met
+            if ( generationFailures >= failGenerationsTimeoutCount)
+            {
+                Debug.Log("Generation timed out after " + generationFailures + " failures.");
+                return; // Exit if maximum generation failures is met
+            }
+                
             if ( !validator.IsSolvable())
             {
-                //Debug.Log("Invalid configuration generated!\n preInitQueueItems: " + preInitQueue.Count + "\nInitQueueItems: " + 
-                //    initQueue.Count);
+                Debug.Log("Invalid configuration generated!\n preInitQueueItems: " + preInitQueue.Count + "\nInitQueueItems: " + 
+                    initQueue.Count);
                 generationFailures++;
                 RandomList();
                 QueueInitObstacles();
+                return;
             }
         }
+        Debug.Log("Queueing finished with " + placedCount + " obstacles queued out of " + numObstacles);
     } 
 
     // Generates the grid by populating it with GameObjects
@@ -132,6 +143,9 @@ public class GameManager : MonoBehaviour {
         // Vector dimensions : (girdPos * scale) + (.5 * modelSideDim)
         Vector2 placementVector = new Vector2(row * .64f + .32f, col * .64f + .32f);
 
+        if( row >= 0 && row < boardDim && col >= 0 && col < boardDim )
+            Debug.Log("Placing obstacle at " + row + ", " + col);
+
         Instantiate(go, placementVector, Quaternion.identity);
     }
 
@@ -160,7 +174,7 @@ public class GameManager : MonoBehaviour {
     {
         foreach(Vector2 v2 in coordList)
         {
-            Debug.Log("Comparing: " + v2.x + " and " + coords.x + ", " + v2.y + " and " + coords.y);
+            //Debug.Log("Comparing: " + v2.x + " and " + coords.x + ", " + v2.y + " and " + coords.y);
             if (v2.x == coords.x && v2.y == coords.y) return true;
         }
         return false;
