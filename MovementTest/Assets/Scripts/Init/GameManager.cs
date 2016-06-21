@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    // Generates the initList as random objects
+    // Generates the preInitQueue and populates it with random obstacles
     private void RandomList()
     {
         preInitQueue = new Queue();
@@ -48,8 +48,7 @@ public class GameManager : MonoBehaviour {
             preInitQueue.Enqueue(new InitObstacle('b', randRow, randCol));
         }
 
-        // Here we will test to see if the level is solvable, and we will recursively call to redo if it isn't
-    }
+	}
 
     // Uses the InitObstacles from the initList to generate a queue of InitObjects to be 
     // Initialized later. After this step, all Queued InitObjects should be valid and ready to place.
@@ -62,8 +61,16 @@ public class GameManager : MonoBehaviour {
         occupiedCoordinates.Add(new Vector2(0,0)); // Occupy player spawn
         occupiedCoordinates.Add(new Vector2(boardDim - 1, boardDim - 1)); // Occupy goal
 
+		//Occupy one block adjacent to player start and finish to increase chance of successful generation
+		Vector2 playerStartOcc;
+		playerStartOcc = Random.Range (0, 1) > 0 ?  new Vector2 (1f, 0f) : new Vector2 (0f, 1f);
+		Vector2 playerFinishOcc;
+		playerFinishOcc = Random.Range (0, 1) > 0 ?  new Vector2 (boardDim-1, boardDim-2) : new Vector2 (boardDim-2, boardDim-1);
+		occupiedCoordinates.Add (playerFinishOcc);
+		occupiedCoordinates.Add (playerStartOcc);
+
+
         InitObstacle iob;
-        int placedCount = 0;
 
         while( preInitQueue.Count > 0 )
         {
@@ -75,8 +82,6 @@ public class GameManager : MonoBehaviour {
                 initQueue.Enqueue(iob);
                 occupiedCoordinates.Add(iobCoords); // Occupy this object's coordinates
                 validator.AddObstacle(iob);
-                Debug.Log("Obstacle queued for placement at " + iobCoords);
-                placedCount++;
             } else if ( !debug )
             {
                 // Add a new initObstacle of the same type to the initList
@@ -92,23 +97,21 @@ public class GameManager : MonoBehaviour {
         // Determine if a valid configuration was generated
         if( !debug)
         {
-            if ( generationFailures >= failGenerationsTimeoutCount)
-            {
-                Debug.Log("Generation timed out after " + generationFailures + " failures.");
-                return; // Exit if maximum generation failures is met
-            }
-                
             if ( !validator.IsSolvable())
             {
-                Debug.Log("Invalid configuration generated!\n preInitQueueItems: " + preInitQueue.Count + "\nInitQueueItems: " + 
-                    initQueue.Count);
+				Debug.Log("Invalid configuration generated!\n" + validator.ToString());
                 generationFailures++;
+				if ( generationFailures >= failGenerationsTimeoutCount)
+				{
+					Debug.Log("Generation timed out after " + generationFailures + " failures.");
+					return; // Exit if maximum generation failures is met
+				}
                 RandomList();
                 QueueInitObstacles();
                 return;
             }
         }
-        Debug.Log("Queueing finished with " + placedCount + " obstacles queued out of " + numObstacles);
+        Debug.Log("Queueing finished successfully");
     } 
 
     // Generates the grid by populating it with GameObjects
@@ -185,12 +188,12 @@ public class GameManager : MonoBehaviour {
         
         generationFailures = 0;
 
-        // Generate initList from file
+        // Generate preInitQueue from file
         if (debug)
         {
             ReadFile(debugFilePath);
         }
-        // Generate initlist randomly
+        // Generate preInitQueue randomly
         else
         {
             RandomList();

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class LayoutValidator{
 
-    private InitObstacle[][] grid; // Holds the InitObjects that will be used to determine if there is a viable path
+    private static InitObstacle[][] grid; // Holds the InitObjects that will be used to determine if there is a viable path
     private static int size;
     private static ArrayList visited =  new ArrayList(); // Holds the values of the already visited positions 
     private Vector2 curPosition;
@@ -18,14 +18,16 @@ public class LayoutValidator{
         {
             grid[i] = new InitObstacle[dim];
         }
+		// Reset visited List
+		visited = new ArrayList();
         
     }
 
     // Copy constructor
     private LayoutValidator(LayoutValidator other)
     {
-        grid = other.grid;
-        curPosition = other.curPosition;
+        // grid = other.grid; // Made this static
+        // curPosition = other.curPosition; // changed immediately
     }
 
     // Adds the InitObstacle to the grid of the LayoutValidator
@@ -44,11 +46,12 @@ public class LayoutValidator{
         {
             for( int col = -1; col <= 1; col++ )
             {
-                Vector2 newPos = new Vector2(curPosition.x + row, curPosition.y + col);
-
+				if ((Mathf.Abs(row) + Mathf.Abs(col)) != 1) continue; // if not up down left or right of the current position
+                
+				Vector2 newPos = new Vector2(curPosition.x + row, curPosition.y + col);
+			
                 if (GameManager.ContainsCoords(visited, newPos)) continue; // skip current space if already visited
-
-                if (Mathf.Abs(row) + Mathf.Abs(col) != 1) continue; // if not up down left or right of the current position
+                
                 LayoutValidator newValidator = new LayoutValidator(this);
                 newValidator.curPosition = newPos;
 
@@ -78,10 +81,13 @@ public class LayoutValidator{
         return curPosition == new Vector2(size - 1, size - 1);
     }
 
+	// Determines if the configuration is solvable
     public bool IsSolvable()
     {
         if (this.IsGoal()) return true;
-        foreach( LayoutValidator successor in this.GetSuccessors())
+
+		Stack successors = this.GetSuccessors ();
+        foreach( LayoutValidator successor in successors)
         {
             if( successor.IsValid())
             {
@@ -90,4 +96,24 @@ public class LayoutValidator{
         }
         return false;
     }
+
+	public override string ToString(){
+		string ret = "";
+
+		for (int j = size-1; j >= 0; j--) {
+			for (int i = 0; i < size; i++) {
+				InitObstacle iob = grid [i] [j];
+				if (iob == null)
+					ret += "\t.";
+				else 
+					ret += "\tO"; 
+				if (curPosition.x == i && curPosition.y == j)
+					ret += "P";
+					
+			}
+			ret += "\n";
+		}
+
+		return ret;
+	}
 }
