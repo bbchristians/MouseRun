@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using System;
 using System.Collections;
@@ -16,10 +18,19 @@ public class GameManager : MonoBehaviour {
     public GameObject[] basicObstaclePrefabs; // The BasicObstacle prefabs
     public GameObject[] buttonDoorPrefabs; // The button and door obstacle prefabs
     public GameObject[] wallPrefabs; // The wall prefabs
+	public GameObject[] staticPrefabs; // Objects to place like the Player and the Finish
+	public GameObject verticalGridLine; // Vertical grid line to add a grid to the background
+	public GameObject horizontalGridLine; // Horizontal grid line to add a grid to the background
+
+	// Buttons to link to player prefab
+	public Button forwardButton;
+	public Button leftButton;
+	public Button rightButton;
 
     private Queue preInitQueue; // The queue where information generated while loading from a file or through randomization will be generated
     private Queue initQueue; // The queue where the InitObstacles will be store for initialization
-    private int generationFailures;
+    private int generationFailures; // To keep track of the number of generation failures for safety timeout
+	private float scale; // Used to scale the GameObjects to fit a dynamic board
 
     // Generates the initList from a file given by fileName
     private void ReadFile(string fileName)
@@ -40,6 +51,12 @@ public class GameManager : MonoBehaviour {
     // Generates the preInitQueue and populates it with random obstacles
     private void RandomList()
     {
+		//Check to make sure there cn be a possible solution
+		if (numObstacles > (boardDim - 1) * (boardDim - 1)) {
+			Debug.Log ("Too many obstacles to generate on given board size!");
+			return;
+		}
+
         preInitQueue = new Queue();
         for ( int i = 0; i < numObstacles; i++)
         {
@@ -68,7 +85,6 @@ public class GameManager : MonoBehaviour {
 		playerFinishOcc = Random.Range (0, 1) > 0 ?  new Vector2 (boardDim-1, boardDim-2) : new Vector2 (boardDim-2, boardDim-1);
 		occupiedCoordinates.Add (playerFinishOcc);
 		occupiedCoordinates.Add (playerStartOcc);
-
 
         InitObstacle iob;
 
@@ -136,20 +152,37 @@ public class GameManager : MonoBehaviour {
                 continue;
             }
             
+			instantiateGO.transform.localScale = new Vector3(scale, scale, 1f);
             InstantiateAtPos(instantiateGO, iob.getRow(), iob.getCol());
         }
+
+		GameObject placedLine;
+
+		// Place grid lines
+		for (float i = .5f; i < boardDim; i += 1) {
+			placedLine = InstantiateAtPos (verticalGridLine, i, boardDim/2f);
+			placedLine.transform.localScale = new Vector3 (.75f, 2, 1);
+			placedLine = InstantiateAtPos (verticalGridLine, boardDim/2f, i);
+			placedLine.transform.localScale = new Vector3 (.75f, 2, 1);
+			placedLine.transform.Rotate(Vector3.forward * 90);
+
+		}
     }
 
-    // Places a game object at the given coordinates
-    private void InstantiateAtPos(GameObject go, int row, int col)
+    // Places a game object at the given coordinates, and returns a reference to it
+	// as a GameObject
+    private GameObject InstantiateAtPos(GameObject go, float row, float col)
     {
         // Vector dimensions : (girdPos * scale) + (.5 * modelSideDim)
         Vector2 placementVector = new Vector2(row * .64f + .32f, col * .64f + .32f);
+		placementVector *= scale;
 
         if( row >= 0 && row < boardDim && col >= 0 && col < boardDim )
             Debug.Log("Placing obstacle at " + row + ", " + col);
 
-        Instantiate(go, placementVector, Quaternion.identity);
+		go.transform.localScale = new Vector3 (scale, scale, 1);
+
+		return (GameObject) Instantiate(go, placementVector, Quaternion.identity);
     }
 
     // Gets a random GameObject from a GameObject Array
@@ -183,9 +216,29 @@ public class GameManager : MonoBehaviour {
         return false;
     }
 
+	// Instantiates the static prefabs from staticPrefabs
+	void InstantiateStaticPrefabs() {
+		// Instantiate Player
+		GameObject player = InstantiateAtPos (staticPrefabs [0], 0, 0);
+		player.SetActive (true);
+		PlayerController.moveScale = scale * .64f;
+			// Link buttons
+		UnityAction action;
+		action = () => { player.GetComponent<PlayerController>().Forward(); };
+		forwardButton.onClick.AddListener(action);
+		action = () => { player.GetComponent<PlayerController>().Left(); };
+		leftButton.onClick.AddListener(action);
+		action = () => { player.GetComponent<PlayerController>().Right(); };
+		rightButton.onClick.AddListener(action);
+
+
+		InstantiateAtPos (staticPrefabs [1], boardDim - 1, boardDim - 1);
+	}
+
 	void Start () {
         
-        
+		scale = 5f / boardDim;
+		PlayerController.scale = scale;
         generationFailures = 0;
 
         // Generate preInitQueue from file
@@ -204,6 +257,9 @@ public class GameManager : MonoBehaviour {
 
         // Place objects on grid
         GenerateGrid();
+
+		// Instantiates statics prefabs like the player, and the victory block
+		InstantiateStaticPrefabs();
 
         // Form a wall of basic blocks around the outside of the board
         GenerateWall();

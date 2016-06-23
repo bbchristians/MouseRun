@@ -13,15 +13,20 @@ public class PlayerController : MonoBehaviour {
 
     public Text victoryText; // Text to display the victory message in
     public Collider2D victoryCollider; // The Collider2D of the victory object
-    public float moveScale;// .64 32px^2 player model
+    public static float moveScale = .64f;// .64 64px^2 player model
     public bool debug;// Determines if information should be printed to the debug log
+	public static float scale; // The scale the game is played in for movemement reference
+	public float maxMovementSpeed; // The max speed the player moves at
+	public float minMovementSpeed; // The min speed the player moves at
 
 
 	// Use this for initialization
 	void Start () {
+		Debug.Log ("Start was called!");
         rb = GetComponent<Rigidbody2D>();
         cldr = GetComponent<Collider2D>();
         canMove = true;
+		gameObject.SetActive (true);
 	}
 
     // Moves the player forward 1 square
@@ -29,20 +34,23 @@ public class PlayerController : MonoBehaviour {
     {
         if (!canMove) return; // return if unable to move
 
+		gameObject.SetActive (true);
+		Debug.Log ("This is active? " + gameObject.activeInHierarchy + rb + cldr);
+
         // Attempt to move the player in the direction it is facing
         switch (direction)
         {
             case 0: // Move north
-                StartCoroutine(SmoothMove(1, 0));
+				StartCoroutine(SmoothMove(1, 0, moveScale*scale));
                 break;
             case 90: // Move east
-                StartCoroutine(SmoothMove(0, 1));
+				StartCoroutine(SmoothMove(0, 1, moveScale*scale));
                 break;
             case 180: // Move south
-                StartCoroutine(SmoothMove(-1, 0));
+				StartCoroutine(SmoothMove(-1, 0, moveScale*scale));
                 break;
             case 270: // Move west
-                StartCoroutine(SmoothMove(0, -1));
+				StartCoroutine(SmoothMove(0, -1,  moveScale*scale));
                 break;
         }
 
@@ -77,7 +85,7 @@ public class PlayerController : MonoBehaviour {
     // rowMove and colMove represent the scale of the movement
     //      1, 0, or -1 for moving by one block
     //      other float values for moving back on recursive call in case of collision
-    IEnumerator SmoothMove(float rowMove, float colMove, float distance = .64f)
+    IEnumerator SmoothMove(float rowMove, float colMove, float distance)
     {
         canMove = false;// Prevent player from beginning another move while they are moving
         float remDist = distance; // The remaining distance to move the player
@@ -87,7 +95,7 @@ public class PlayerController : MonoBehaviour {
         {
             thisMove = Mathf.Round((distance - remDist) * 100f) / 100f; // Round
             thisMove = Mathf.Max(thisMove, .01f); // Max is used to allow the movement to start
-            thisMove = Mathf.Min(remDist, thisMove, .1f); // prevent from moving past the block or too fast
+			thisMove = Mathf.Min(remDist, thisMove, maxMovementSpeed); // prevent from moving past the block or too fast
 
             RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(colMove, rowMove), thisMove);
             Debug.Log(hit.collider.gameObject.tag + ", " + hasCollided);
@@ -105,6 +113,9 @@ public class PlayerController : MonoBehaviour {
             rb.MovePosition((Vector2)transform.position + move);
             remDist -= thisMove;
 
+			if (debug)
+				Debug.Log ("Player moved " + thisMove + " units, remaining: " + remDist);
+
             yield return new WaitForFixedUpdate(); // Wait for Fixed Update to assure MovePosition functions correctly
             
         }
@@ -117,6 +128,10 @@ public class PlayerController : MonoBehaviour {
         canMove = true; // allow the player to move again
         hasCollided = false; // Resolve any collisions
     }
+
+	public void ButtonTest(){
+		Debug.Log ("Button pressed successfully!");
+	}
 
 	
 	// Update is called once per frame
