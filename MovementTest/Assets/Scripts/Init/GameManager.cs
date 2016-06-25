@@ -13,6 +13,9 @@ public class GameManager : MonoBehaviour {
     private int boardDim; // The dimensions of the board (must be square)
     public int numObstacles; // The number of obstacles to randomly generate if not debugging
     public int failGenerationsTimeoutCount; // Number of times the generator can fail to generate a solvable configuration before the system will time out
+	public float easyObs;
+	public float normalObs;
+	public float hardObs;
 
     //Prefab lists
     public GameObject[] basicObstaclePrefabs; // The BasicObstacle prefabs
@@ -238,18 +241,28 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Start () {
-        
-		//if (GameObject.Find("Passer") != null) {
-		//	boardDim = (Passer)(GameObject.Find("Passer")).levelDim;
-		//} else {
-		//	boardDim = 5;
-		//	Debug.Log ("Passer not found, generating level as 5x5");
-		//}
 
+		// Determine size of level
 		if (Passer.levelDim != 0) {
 			boardDim = Passer.levelDim;
 		} else {
 			boardDim = 5;
+		}
+
+		//Determine difficulty of level
+		switch (Passer.levelDiff) {
+			case Passer.Difficulty.Easy:
+				// 0.5x^2 - 2.5x + 4
+				numObstacles = (int)Mathf.Round(.5f*boardDim*boardDim+(-2.5f)*boardDim+4);
+				break;
+			case Passer.Difficulty.Hard:
+				// 0.5x^2 - 0.5x + 0
+				numObstacles = (int)Mathf.Round(.5f*boardDim*boardDim+(-0.5f)*boardDim+0);
+				break;
+			default: // Also for Normal
+				// 0.5x^2 - 1.5x + 2
+				numObstacles = (int)Mathf.Round(.5f*boardDim*boardDim+(-1.5f)*boardDim+2);
+				break;
 		}
 
 		scale = 5f / boardDim;

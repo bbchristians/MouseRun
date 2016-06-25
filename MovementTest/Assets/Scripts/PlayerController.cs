@@ -22,7 +22,6 @@ public class PlayerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Debug.Log ("Start was called!");
         rb = GetComponent<Rigidbody2D>();
         cldr = GetComponent<Collider2D>();
         canMove = true;
