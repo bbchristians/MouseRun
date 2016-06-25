@@ -11,8 +11,8 @@ public class PlayerController : MonoBehaviour {
     private bool canMove;
     private bool hasCollided;
 
-    public Text victoryText; // Text to display the victory message in
-    public Collider2D victoryCollider; // The Collider2D of the victory object
+    public static Text victoryText; // Text to display the victory message in
+    public static Collider2D victoryCollider; // The Collider2D of the victory object
     public static float moveScale = .64f;// .64 64px^2 player model
     public bool debug;// Determines if information should be printed to the debug log
 	public static float scale; // The scale the game is played in for movemement reference
@@ -138,7 +138,7 @@ public class PlayerController : MonoBehaviour {
 	void Update () {
         if (cldr.IsTouching(victoryCollider))
         {
-            victoryText.text = "Victory!";
+            victoryText.text = " Victory!";
             canMove = false;
         }
 	}

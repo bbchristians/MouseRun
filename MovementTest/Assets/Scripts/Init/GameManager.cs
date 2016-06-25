@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour {
 
     public bool debug; // Determines if the game will run in debug mode
     public string debugFilePath; // The file Path leading to the debug file
-    public int boardDim; // The dimensions of the board (must be square)
+    private int boardDim; // The dimensions of the board (must be square)
     public int numObstacles; // The number of obstacles to randomly generate if not debugging
     public int failGenerationsTimeoutCount; // Number of times the generator can fail to generate a solvable configuration before the system will time out
 
@@ -22,10 +22,11 @@ public class GameManager : MonoBehaviour {
 	public GameObject verticalGridLine; // Vertical grid line to add a grid to the background
 	public GameObject horizontalGridLine; // Horizontal grid line to add a grid to the background
 
-	// Buttons to link to player prefab
+	// GUI nodes to link to player prefab
 	public Button forwardButton;
 	public Button leftButton;
 	public Button rightButton;
+	public Text victoryText;
 
     private Queue preInitQueue; // The queue where information generated while loading from a file or through randomization will be generated
     private Queue initQueue; // The queue where the InitObstacles will be store for initialization
@@ -221,7 +222,6 @@ public class GameManager : MonoBehaviour {
 		// Instantiate Player
 		GameObject player = InstantiateAtPos (staticPrefabs [0], 0, 0);
 		player.SetActive (true);
-		PlayerController.moveScale = scale * .64f;
 			// Link buttons
 		UnityAction action;
 		action = () => { player.GetComponent<PlayerController>().Forward(); };
@@ -230,13 +230,28 @@ public class GameManager : MonoBehaviour {
 		leftButton.onClick.AddListener(action);
 		action = () => { player.GetComponent<PlayerController>().Right(); };
 		rightButton.onClick.AddListener(action);
+		PlayerController.victoryText = victoryText;
 
 
-		InstantiateAtPos (staticPrefabs [1], boardDim - 1, boardDim - 1);
+		GameObject victory = InstantiateAtPos (staticPrefabs [1], boardDim - 1, boardDim - 1);
+		PlayerController.victoryCollider = victory.GetComponent<Collider2D> ();
 	}
 
 	void Start () {
         
+		//if (GameObject.Find("Passer") != null) {
+		//	boardDim = (Passer)(GameObject.Find("Passer")).levelDim;
+		//} else {
+		//	boardDim = 5;
+		//	Debug.Log ("Passer not found, generating level as 5x5");
+		//}
+
+		if (Passer.levelDim != 0) {
+			boardDim = Passer.levelDim;
+		} else {
+			boardDim = 5;
+		}
+
 		scale = 5f / boardDim;
 		PlayerController.scale = scale;
         generationFailures = 0;
@@ -251,6 +266,10 @@ public class GameManager : MonoBehaviour {
         {
             RandomList();
         }
+		if (preInitQueue == null) {
+			Debug.Log ("preInitQueue not generated, cannot produce layout");
+			return;
+		}
 
         // Generate initQueue
         QueueInitObstacles();
