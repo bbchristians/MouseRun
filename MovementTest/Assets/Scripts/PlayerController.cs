@@ -96,17 +96,19 @@ public class PlayerController : MonoBehaviour {
             thisMove = Mathf.Max(thisMove, .01f); // Max is used to allow the movement to start
 			thisMove = Mathf.Min(remDist, thisMove, maxMovementSpeed); // prevent from moving past the block or too fast
 
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, new Vector2(colMove, rowMove), thisMove);
-            Debug.Log(hit.collider.gameObject.tag + ", " + hasCollided);
-            if( hit.collider != null && hit.collider.gameObject.tag == "Blocking" && !hasCollided)
-            {
-                hasCollided = true;
-                if( debug )
-                    Debug.Log("Collision Detected!");
-                StartCoroutine(SmoothMove(-rowMove, -colMove, distance-remDist)); // Move in reverse direction until at original position
-                
-                yield break; // Leave coroutine as to not finish forward movement
-            }
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, new Vector2(colMove, rowMove), thisMove);
+			foreach (RaycastHit2D hit in hits) {
+				Debug.Log(hit.collider.gameObject.tag + ", " + hasCollided);
+				if( hit.collider != null && hit.collider.gameObject.tag == "Blocking" && !hasCollided)
+				{
+					hasCollided = true;
+					if( debug )
+						Debug.Log("Collision Detected!");
+					StartCoroutine(SmoothMove(-rowMove, -colMove, distance-remDist)); // Move in reverse direction until at original position
+
+					yield break; // Leave coroutine as to not finish forward movement
+				}
+			}
             
             Vector2 move = new Vector2(colMove * thisMove, rowMove * thisMove);
             rb.MovePosition((Vector2)transform.position + move);
