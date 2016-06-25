@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour {
 	public Button leftButton;
 	public Button rightButton;
 	public Text victoryText;
+	public Button backToMenuButton;
 
     private Queue preInitQueue; // The queue where information generated while loading from a file or through randomization will be generated
     private Queue initQueue; // The queue where the InitObstacles will be store for initialization
@@ -225,6 +226,7 @@ public class GameManager : MonoBehaviour {
 		// Instantiate Player
 		GameObject player = InstantiateAtPos (staticPrefabs [0], 0, 0);
 		player.SetActive (true);
+		player.GetComponent<PlayerController>().backToMenuButton = backToMenuButton;
 			// Link buttons
 		UnityAction action;
 		action = () => { player.GetComponent<PlayerController>().Forward(); };
