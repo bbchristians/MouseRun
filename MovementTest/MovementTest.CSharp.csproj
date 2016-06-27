@@ -73,6 +73,9 @@
     <Compile Include="Assets\Scripts\Init\InitObstacle.cs" />
     <Compile Include="Assets\Scripts\Init\LayoutValidator.cs" />
     <Compile Include="Assets\Scripts\Main\BackToMenuButton.cs" />
+    <Compile Include="Assets\Scripts\Main\ConveyerBelt\Conveyer.cs" />
+    <Compile Include="Assets\Scripts\Main\ConveyerBelt\ConveyerBelt.cs" />
+    <Compile Include="Assets\Scripts\Main\ConveyerBelt\MovementBlock.cs" />
     <Compile Include="Assets\Scripts\Main\PlayerController.cs" />
     <Compile Include="Assets\Scripts\ObstacleScripts\BlockingObstacle.cs" />
     <Compile Include="Assets\Scripts\ObstacleScripts\Door\ButtonObstacle.cs" />

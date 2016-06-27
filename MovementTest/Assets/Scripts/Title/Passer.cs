@@ -6,10 +6,12 @@ public class Passer : MonoBehaviour {
 
 	public static int levelDim;
 	public static Difficulty levelDiff = Difficulty.Normal;
+	public static bool conveyer;
 
 	public Button easyButton;
 	public Button normalButton;
 	public Button hardButton;
+	public Button conveyerButton;
 
 	public Color selected;
 	public Color notSelected;
@@ -45,6 +47,15 @@ public class Passer : MonoBehaviour {
 		easyButton.GetComponent<Image>().color = notSelected;
 		normalButton.GetComponent<Image>().color = selected;
 		hardButton.GetComponent<Image>().color = notSelected;
+	}
+
+	public void ToggleConveyer(){
+		conveyer = !conveyer;
+		if( conveyer )
+			conveyerButton.GetComponentInChildren<Text>().text = "Conveyer-Belt";
+		else 
+			conveyerButton.GetComponentInChildren<Text>().text = "Buttons";
+
 	}
 
 }

@@ -242,14 +242,18 @@ public class GameManager : MonoBehaviour {
 		PlayerController.victoryCollider = victory.GetComponent<Collider2D> ();
 	}
 
-	void Start () {
-
-		// Determine size of level
+	private void DetermineLevelDimensions(){
 		if (Passer.levelDim != 0) {
 			boardDim = Passer.levelDim;
 		} else {
 			boardDim = 5;
 		}
+	}
+
+	void Start () {
+
+		// Determine size of level
+		DetermineLevelDimensions();
 
 		//Determine difficulty of level
 		switch (Passer.levelDiff) {
