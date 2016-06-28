@@ -4,10 +4,12 @@ using System.Collections;
 public class ConveyerBelt : MonoBehaviour {
 
 	public GameObject conveyerPrefab; // The conveyer prefab to build the conveyer belt
+    public bool on; // Determines if the conveyorbelt is on
 
 	// Use this for initialization
 	void Start () {
-		InvokeRepeating ("NextConveyer", 0f, 1.45f);
+        if( on )
+		    InvokeRepeating ("NextConveyer", 0f, 1.45f);
 	}
 
 	private void NextConveyer(){

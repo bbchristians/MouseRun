@@ -5,7 +5,7 @@ public class Conveyer : MonoBehaviour {
 
 	public static float speedScale = 1;
 	public static float movementSpeed = .006f;
-	public MovementBlock[] movementBlockPrefabs;
+	public GameObject[] movementBlockPrefabs;
 
 	private Rigidbody2D rb;
 
