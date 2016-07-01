@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour {
 	public GameObject[] staticPrefabs; // Objects to place like the Player and the Finish
 	public GameObject verticalGridLine; // Vertical grid line to add a grid to the background
 	public GameObject horizontalGridLine; // Horizontal grid line to add a grid to the background
+    public GameObject conveyerBelt; // Convayor for turning on or off
 
 	// GUI nodes to link to player prefab
 	public Button forwardButton;
@@ -166,9 +167,9 @@ public class GameManager : MonoBehaviour {
 		// Place grid lines
 		for (float i = .5f; i < boardDim; i += 1) {
 			placedLine = InstantiateAtPos (verticalGridLine, i, boardDim/2f);
-			placedLine.transform.localScale = new Vector3 (.75f, 2, 1);
+			placedLine.transform.localScale = new Vector3 (.75f, 1.7f, 1);
 			placedLine = InstantiateAtPos (verticalGridLine, boardDim/2f, i);
-			placedLine.transform.localScale = new Vector3 (.75f, 2, 1);
+			placedLine.transform.localScale = new Vector3 (.75f, 1.7f, 1);
 			placedLine.transform.Rotate(Vector3.forward * 90);
 
 		}
@@ -227,8 +228,9 @@ public class GameManager : MonoBehaviour {
 		GameObject player = InstantiateAtPos (staticPrefabs [0], 0, 0);
 		player.SetActive (true);
 		player.GetComponent<PlayerController>().backToMenuButton = backToMenuButton;
-			// Link buttons
-		UnityAction action;
+        MovementBlock.playerController = player.GetComponent<PlayerController>();
+        // Link buttons
+        UnityAction action;
 		action = () => { player.GetComponent<PlayerController>().Forward(); };
 		forwardButton.onClick.AddListener(action);
 		action = () => { player.GetComponent<PlayerController>().Left(); };
@@ -250,29 +252,60 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+    private void ScaleDimensionsAndDifficulty()
+    {
+        //Determine difficulty of level
+        switch (Passer.levelDiff)
+        {
+            case Passer.Difficulty.Easy:
+                // 0.5x^2 - 2.5x + 4
+                numObstacles = (int)Mathf.Round(.5f * boardDim * boardDim + (-2.5f) * boardDim + 4);
+                break;
+            case Passer.Difficulty.Hard:
+                // 0.5x^2 - 0.5x + 0
+                numObstacles = (int)Mathf.Round(.5f * boardDim * boardDim + (-0.5f) * boardDim + 0);
+                break;
+            default: // Also for Normal
+                     // 0.5x^2 - 1.5x + 2
+                numObstacles = (int)Mathf.Round(.5f * boardDim * boardDim + (-1.5f) * boardDim + 2);
+                break;
+        }
+
+        scale = 5f / boardDim;
+        PlayerController.scale = scale;
+    }
+
+    private void DetermineMovementType()
+    {
+        if( Passer.conveyer )
+        {
+            conveyerBelt.GetComponent<ConveyerBelt>().on = true;
+        } else if( !conveyerBelt.GetComponent<ConveyerBelt>().on && !Passer.conveyer ) 
+        {
+            conveyerBelt.GetComponent<ConveyerBelt>().on = false;
+        }
+
+        Debug.Log(conveyerBelt.GetComponent<ConveyerBelt>().on);
+        //Destroy buttons if turned on
+        if (conveyerBelt.GetComponent<ConveyerBelt>().on)
+        {
+            Debug.Log("Buttons should be destroyed");
+            forwardButton.gameObject.SetActive(false);
+            leftButton.gameObject.SetActive(false);
+            rightButton.gameObject.SetActive(false);
+        }
+        Debug.Log(conveyerBelt.GetComponent<ConveyerBelt>().on);
+    }
+
 	void Start () {
 
 		// Determine size of level
 		DetermineLevelDimensions();
 
-		//Determine difficulty of level
-		switch (Passer.levelDiff) {
-			case Passer.Difficulty.Easy:
-				// 0.5x^2 - 2.5x + 4
-				numObstacles = (int)Mathf.Round(.5f*boardDim*boardDim+(-2.5f)*boardDim+4);
-				break;
-			case Passer.Difficulty.Hard:
-				// 0.5x^2 - 0.5x + 0
-				numObstacles = (int)Mathf.Round(.5f*boardDim*boardDim+(-0.5f)*boardDim+0);
-				break;
-			default: // Also for Normal
-				// 0.5x^2 - 1.5x + 2
-				numObstacles = (int)Mathf.Round(.5f*boardDim*boardDim+(-1.5f)*boardDim+2);
-				break;
-		}
+        ScaleDimensionsAndDifficulty();
 
-		scale = 5f / boardDim;
-		PlayerController.scale = scale;
+        DetermineMovementType();
+
         generationFailures = 0;
 
         // Generate preInitQueue from file
