@@ -275,9 +275,12 @@ public class GameManager : MonoBehaviour {
         PlayerController.scale = scale;
     }
 
+    // Determines the movement type of the game, either Conveyor or Buttons
     private void DetermineMovementType()
     {
-        if( Passer.conveyer )
+        Debug.Log("Passer.conveyer: " + Passer.conveyer);
+        conveyerBelt = (GameObject)Instantiate(conveyerBelt, new Vector3(), Quaternion.identity);
+        if ( Passer.conveyer )
         {
             conveyerBelt.GetComponent<ConveyerBelt>().on = true;
         } else if( !conveyerBelt.GetComponent<ConveyerBelt>().on && !Passer.conveyer ) 

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class Passer : MonoBehaviour {
 
@@ -16,12 +16,15 @@ public class Passer : MonoBehaviour {
 	public Color selected;
 	public Color notSelected;
 
+    private bool hasLoaded;
+
 	public enum Difficulty{ Easy, Normal, Hard };
 
 	void Awake() {
 		DontDestroyOnLoad(this);
 	}
 
+    // Sets the difficulty of the level to be generated to easy
 	public void Easy(){
 		levelDiff = Difficulty.Easy;
 		easyButton.GetComponent<Image>().color = selected;
@@ -29,20 +32,23 @@ public class Passer : MonoBehaviour {
 		hardButton.GetComponent<Image>().color = notSelected;
 	}
 
-	public void Normal(){
+    // Sets the difficulty of the level to be generated to normal
+    public void Normal(){
 		levelDiff = Difficulty.Normal;
 		easyButton.GetComponent<Image>().color = notSelected;
 		normalButton.GetComponent<Image>().color = selected;
 		hardButton.GetComponent<Image>().color = notSelected;
 	}
 
-	public void Hard(){
+    // Sets the difficulty of the level to be generated to hard
+    public void Hard(){
 		levelDiff = Difficulty.Hard;
 		easyButton.GetComponent<Image>().color = notSelected;
 		normalButton.GetComponent<Image>().color = notSelected;
 		hardButton.GetComponent<Image>().color = selected;
 	}
 
+    // Starts the Passer with the normal difficulty selected
 	void Start(){
 		easyButton.GetComponent<Image>().color = notSelected;
 		normalButton.GetComponent<Image>().color = selected;
@@ -57,5 +63,11 @@ public class Passer : MonoBehaviour {
 			conveyerButton.GetComponentInChildren<Text>().text = "Buttons";
 
 	}
+
+    void Update()
+    {
+        hasLoaded = hasLoaded || SceneManager.GetActiveScene().name == "Main";
+        if (hasLoaded && SceneManager.GetActiveScene().name == "Title") Destroy(this.gameObject);
+    }
 
 }
