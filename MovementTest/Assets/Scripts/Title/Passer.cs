@@ -4,22 +4,26 @@ using UnityEngine.SceneManagement;
 
 public class Passer : MonoBehaviour {
 
-	public static int levelDim;
-	public static Difficulty levelDiff = Difficulty.Normal;
-	public static bool conveyer;
+	public static int levelDim; // The dimensions of the level to be generated
+	public static Difficulty levelDiff = Difficulty.Normal; // The defficulty of the level, normal is the default
+	public static bool conveyor; // Determines if the level will be conveyor or not
 
+    // The buttons of the title menu to be linked
 	public Button easyButton;
 	public Button normalButton;
 	public Button hardButton;
-	public Button conveyerButton;
+	public Button conveyorButton;
 
+    // The colors of the buttons to signify selected/not selected
 	public Color selected;
 	public Color notSelected;
 
-    private bool hasLoaded;
+    private bool hasLoaded; // Determines if a level has been loaded or not
+                            // This is used to determine if the Passer GameObject should be destroyed or not
 
-	public enum Difficulty{ Easy, Normal, Hard };
+	public enum Difficulty{ Easy, Normal, Hard }; // And enum that represents the level difficulty
 
+    // Prevents the Passer from being destroyed so that it can transfer information to the Main scene
 	void Awake() {
 		DontDestroyOnLoad(this);
 	}
@@ -55,15 +59,14 @@ public class Passer : MonoBehaviour {
 		hardButton.GetComponent<Image>().color = notSelected;
 	}
 
-	public void ToggleConveyer(){
-		conveyer = !conveyer;
-		if( conveyer )
-			conveyerButton.GetComponentInChildren<Text>().text = "Conveyer-Belt";
-		else 
-			conveyerButton.GetComponentInChildren<Text>().text = "Buttons";
+    // Toggles the conveyor on or off
+	public void ToggleConveyor(){
+		conveyor = !conveyor;
+        conveyorButton.GetComponentInChildren<Text>().text = ( conveyor )? "Conveyor-Belt" : "Buttons";
 
 	}
 
+    // Determines if the game has been loaded or not for use in destroying duplicate Passer Instances
     void Update()
     {
         hasLoaded = hasLoaded || SceneManager.GetActiveScene().name == "Main";

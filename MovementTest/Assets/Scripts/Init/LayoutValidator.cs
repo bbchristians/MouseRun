@@ -4,9 +4,12 @@ using System.Collections;
 public class LayoutValidator{
 
     private static InitObstacle[][] grid; // Holds the InitObjects that will be used to determine if there is a viable path
-    private static int size;
+    private static int size; // The size of the grid
     private static ArrayList visited =  new ArrayList(); // Holds the values of the already visited positions 
-    private Vector2 curPosition;
+    private Vector2 curPosition; // The current position in the grid
+
+    // Default constructor
+    public LayoutValidator() { }
 
     //Constructor to be used in the GameManager script
     public LayoutValidator(int dim)
@@ -23,17 +26,22 @@ public class LayoutValidator{
         
     }
 
-    // Copy constructor
-    private LayoutValidator(LayoutValidator other)
-    {
-        // grid = other.grid; // Made this static
-        // curPosition = other.curPosition; // changed immediately
-    }
-
     // Adds the InitObstacle to the grid of the LayoutValidator
     public void AddObstacle(InitObstacle iob)
     {
         grid[iob.getRow()][iob.getCol()] = iob;
+    }
+
+    // Resets the list of the visited coordinates
+    public void ResetVisited()
+    {
+        visited = new ArrayList();
+    }
+
+    // Returns the list of visited points in the form of Vector2Ds
+    public ArrayList GetVisited()
+    {
+        return visited;
     }
 
     // Generates a stack containing the successors of the current configuration
@@ -52,7 +60,7 @@ public class LayoutValidator{
 			
                 if (GameManager.ContainsCoords(visited, newPos)) continue; // skip current space if already visited
                 
-                LayoutValidator newValidator = new LayoutValidator(this);
+                LayoutValidator newValidator = new LayoutValidator();
                 newValidator.curPosition = newPos;
 
                 visited.Add(newValidator.curPosition);
@@ -97,6 +105,26 @@ public class LayoutValidator{
         return false;
     }
 
+    // Returns an ArrayList of the possible placements for a door
+    // The returned positions will result in a blockage by a door placed in it's location
+    public ArrayList FindDoorPlacement()
+    {
+        ArrayList places = new ArrayList();
+
+        for ( int i = 0; i < size; i++)
+        {
+            for( int j = 0; j < size; j++)
+            {
+                if (grid[i][j] == null) continue; // skip over occupied spaces
+                if ((i == 0 || grid[i - 1][j] != null) && (i == size - 1 || grid[i + 1][j] != null)) places.Add(new Vector2(i, j));
+                else if ((j == 0 || grid[i][j - 1] != null) && (j == size - 1 || grid[i][j + 1] != null)) places.Add(new Vector2(i, j));
+            }
+        }
+
+        return places;
+    }
+
+    // ToString for debugging purposes
 	public override string ToString(){
 		string ret = "";
 

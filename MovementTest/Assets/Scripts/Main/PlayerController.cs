@@ -5,16 +5,16 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour {
 
-    private Rigidbody2D rb;
-    private Collider2D cldr;
+    private Rigidbody2D rb; // The Rigidbody2D of the player
+    private Collider2D cldr; // The Collider2D of the player
     private int direction; // The rotational direction of the player in degrees
-    private int curRow = 0, curCol = 0; // Current position of the player
-    private bool canMove;
-    private bool hasCollided;
+    private bool canMove; // Determines if the player can move
+    private bool hasCollided; // Determines if the player has collided with another object and is therefor moving backwards
 
     public static Text victoryText; // Text to display the victory message in
     public static Collider2D victoryCollider; // The Collider2D of the victory object
     public static float moveScale = .64f;// .64 64px^2 player model
+    public static GameObject door; // The door that may be opened
     public bool debug;// Determines if information should be printed to the debug log
 	public static float scale; // The scale the game is played in for movemement reference
 	public float maxMovementSpeed; // The max speed the player moves at
@@ -22,16 +22,14 @@ public class PlayerController : MonoBehaviour {
 	public Button backToMenuButton; // Button to appear on victory to allow user back to menu
 
 
-	// Use this for initialization
+	// Initializes the player, the Camera and the back-to-menu button which interact with the player
 	void Start () {
         rb = GetComponent<Rigidbody2D>();
         cldr = GetComponent<Collider2D>();
         canMove = true;
 		gameObject.SetActive (true);
-		Debug.Log ("Camera: " + Camera.current);
-		Camera.main.GetComponent<BlurOptimized> ().enabled = false;
-		Debug.Log ("Button: " + backToMenuButton != null);
-		backToMenuButton.gameObject.SetActive (false);
+		Camera.main.GetComponent<BlurOptimized> ().enabled = false; // Blur used in win condition
+		backToMenuButton.gameObject.SetActive (false); // Button used to return to menu
 	}
 
     // Moves the player forward 1 square
@@ -56,12 +54,6 @@ public class PlayerController : MonoBehaviour {
             case 270: // Move west
 				StartCoroutine(SmoothMove(0, -1,  moveScale*scale));
                 break;
-        }
-
-        if (debug)
-        {
-            Debug.Log("curRow: " + curRow + "\n" +
-                "curCol: " + curCol + "\n");
         }
     }
 
@@ -103,16 +95,21 @@ public class PlayerController : MonoBehaviour {
 
             RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, new Vector2(colMove, rowMove), thisMove);
 			foreach (RaycastHit2D hit in hits) {
-				Debug.Log(hit.collider.gameObject.tag + ", " + hasCollided);
-				if( hit.collider != null && hit.collider.gameObject.tag == "Blocking" && !hasCollided)
-				{
-					hasCollided = true;
-					if( debug )
-						Debug.Log("Collision Detected!");
-					StartCoroutine(SmoothMove(-rowMove, -colMove, distance-remDist)); // Move in reverse direction until at original position
+                if( debug ) Debug.Log(hit.collider.gameObject.tag + ", " + hasCollided);
+                
+                if(hit.collider.gameObject.tag == "Blocking" && !hasCollided)
+                {
+                    hasCollided = true; // Prevents multiple collisions fro happening
+                    if (debug) Debug.Log("Collision Detected!");
 
-					yield break; // Leave coroutine as to not finish forward movement
-				}
+                    StartCoroutine(SmoothMove(-rowMove, -colMove, distance - remDist)); // Move in reverse direction until at original position
+
+                    yield break; // Leave coroutine as to not finish forward movement
+                }
+                else if (hit.collider.gameObject.tag == "Button")
+                {
+                        door.GetComponent<DoorObstacle>().Open();
+                }
 			}
             
             Vector2 move = new Vector2(colMove * thisMove, rowMove * thisMove);
@@ -129,12 +126,11 @@ public class PlayerController : MonoBehaviour {
         {
             Debug.Log("Imperfect movement detected: Ramaining Distance of " + remDist + " was not moved!");
         }
-        curRow += (int)rowMove;
-        curCol += (int)colMove;
         canMove = true; // allow the player to move again
         hasCollided = false; // Resolve any collisions
     }
 
+    // Checks for collision in victory collider
 	void Update () {
         if (cldr.IsTouching(victoryCollider))
         {

@@ -4,21 +4,22 @@ using System.Collections;
 
 public class LevelDimensions : MonoBehaviour {
 
-	private Text thisText;
-	private static int dimensions;
+	private Text thisText; // The text that represents the currently selected size of the game board
+	private static int dimensions; // The integer representation of the game board's dimensions
 
-	public int maxDimensions;
-	public int minDimensions;
+	public int maxDimensions; // The maximum dimensions of the board
+	public int minDimensions; // The minimum dimensions of the board
 
-	public Button incButton;
-	public Button decButton;
+	public Button incButton; // The button that increases the board dimensions
+	public Button decButton; // The button that decreases the board dimensions
 
-	// Use this for initialization
+	// Initializes the Title screen
 	void Start () {
 		thisText = GetComponent<Text> ();
 		dimensions = 5;
 	}
 
+    // Increases the dimensions by 1 if it is not already the max
 	public void IncrementDimensions(){
 		if (dimensions >= maxDimensions) {
 			return;
@@ -31,6 +32,7 @@ public class LevelDimensions : MonoBehaviour {
 		}
 	}
 
+    // Decreases the dimensions by 1 if it is not already the minimum
 	public void DecrementDimensions(){
 		if (dimensions <= minDimensions) {
 			return;
@@ -43,6 +45,7 @@ public class LevelDimensions : MonoBehaviour {
 		}
 	}
 
+    // Returns the dimensions of the game board
 	public static int GetDimensions(){
 		return dimensions;
 	}

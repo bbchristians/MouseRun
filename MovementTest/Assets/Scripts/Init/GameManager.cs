@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
-using System;
 using System.Collections;
 using System.IO;
 
@@ -10,10 +9,11 @@ public class GameManager : MonoBehaviour {
 
     public bool debug; // Determines if the game will run in debug mode
     public string debugFilePath; // The file Path leading to the debug file
-    private int boardDim; // The dimensions of the board (must be square)
     public int numObstacles; // The number of obstacles to randomly generate if not debugging
     public int failGenerationsTimeoutCount; // Number of times the generator can fail to generate a solvable configuration before the system will time out
-	public float easyObs;
+
+    // The % of the board that wil contain obstacles for each difficulty
+    public float easyObs;
 	public float normalObs;
 	public float hardObs;
 
@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour {
 	public GameObject[] staticPrefabs; // Objects to place like the Player and the Finish
 	public GameObject verticalGridLine; // Vertical grid line to add a grid to the background
 	public GameObject horizontalGridLine; // Horizontal grid line to add a grid to the background
-    public GameObject conveyerBelt; // Convayor for turning on or off
+    public GameObject conveyorBelt; // Convayor for turning on or off
 
 	// GUI nodes to link to player prefab
 	public Button forwardButton;
@@ -37,6 +37,9 @@ public class GameManager : MonoBehaviour {
     private Queue initQueue; // The queue where the InitObstacles will be store for initialization
     private int generationFailures; // To keep track of the number of generation failures for safety timeout
 	private float scale; // Used to scale the GameObjects to fit a dynamic board
+    private int boardDim; // The dimensions of the board (must be square)
+
+    private Vector2 buttonPos; // The position of the button to be placed if needed
 
     // Generates the initList from a file given by fileName
     private void ReadFile(string fileName)
@@ -50,7 +53,7 @@ public class GameManager : MonoBehaviour {
         {
             parts = line.Split();
             preInitQueue.Enqueue(new InitObstacle(parts[0].ToCharArray()[0], 
-                Int32.Parse(parts[1]), Int32.Parse(parts[2])));
+                int.Parse(parts[1]), int.Parse(parts[2])));
         }
     }
 
@@ -116,8 +119,26 @@ public class GameManager : MonoBehaviour {
             }
         }
 
+        // Place the Button and Door if needed
+        
+
+        foreach( Vector2 pos in validator.FindDoorPlacement())
+        {
+            // See if adding the door would make the new layout unsolvable
+            iob = new InitObstacle('d', (int)pos.x, (int)pos.y);
+            validator.AddObstacle(iob);
+            validator.ResetVisited();
+            if( !validator.IsSolvable())
+            {
+                int timeout = 0;
+                while( (buttonPos == null || buttonPos.x < 0 || buttonPos.x >= boardDim || buttonPos.y < 0 || buttonPos.y >= boardDim) && timeout++ < 50 )
+                    buttonPos = (Vector2)validator.GetVisited()[Random.Range(0, validator.GetVisited().Count)]; // save buttonPos for later
+                initQueue.Enqueue(iob);
+            }
+        }
+
         // Determine if a valid configuration was generated
-        if( !debug)
+        if ( !debug)
         {
             if ( !validator.IsSolvable())
             {
@@ -147,6 +168,23 @@ public class GameManager : MonoBehaviour {
             switch( iob.GetCode())
             {
                 case 'b': instantiateGO = RandomFromArray(basicObstaclePrefabs);
+                    break;
+                case 'd':
+                    GameObject buttonAndDoor = RandomFromArray(buttonDoorPrefabs);
+                    GameObject button = null;
+                    GameObject door = null;
+
+                    foreach (Transform child in buttonAndDoor.transform)
+                    {
+                        if (child.gameObject.tag == "Button") button = child.gameObject;
+                        else door = child.gameObject;
+                    }
+
+                    instantiateGO = door;
+
+                    button.transform.localScale = new Vector3(scale, scale, 1f);
+                    InstantiateAtPos(button, buttonPos.x, buttonPos.y);
+
                     break;
             }
             if( instantiateGO == null) // Dont instantiate a null GameObject
@@ -228,6 +266,7 @@ public class GameManager : MonoBehaviour {
 		GameObject player = InstantiateAtPos (staticPrefabs [0], 0, 0);
 		player.SetActive (true);
 		player.GetComponent<PlayerController>().backToMenuButton = backToMenuButton;
+        // Link player to other scripts
         MovementBlock.playerController = player.GetComponent<PlayerController>();
         // Link buttons
         UnityAction action;
@@ -244,6 +283,7 @@ public class GameManager : MonoBehaviour {
 		PlayerController.victoryCollider = victory.GetComponent<Collider2D> ();
 	}
 
+    // Determines the level dimensions from the Passer's information
 	private void DetermineLevelDimensions(){
 		if (Passer.levelDim != 0) {
 			boardDim = Passer.levelDim;
@@ -252,7 +292,8 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-    private void ScaleDimensionsAndDifficulty()
+    // Scales the number of obstacles to the selected difficulty and some other things
+    private void ScaleDifficulty()
     {
         //Determine difficulty of level
         switch (Passer.levelDiff)
@@ -278,26 +319,26 @@ public class GameManager : MonoBehaviour {
     // Determines the movement type of the game, either Conveyor or Buttons
     private void DetermineMovementType()
     {
-        Debug.Log("Passer.conveyer: " + Passer.conveyer);
-        conveyerBelt = (GameObject)Instantiate(conveyerBelt, new Vector3(), Quaternion.identity);
-        if ( Passer.conveyer )
+        Debug.Log("Passer.conveyor: " + Passer.conveyor);
+        conveyorBelt = (GameObject)Instantiate(conveyorBelt, new Vector3(), Quaternion.identity);
+        if ( Passer.conveyor )
         {
-            conveyerBelt.GetComponent<ConveyerBelt>().on = true;
-        } else if( !conveyerBelt.GetComponent<ConveyerBelt>().on && !Passer.conveyer ) 
+            conveyorBelt.GetComponent<ConveyorBelt>().on = true;
+        } else if( !conveyorBelt.GetComponent<ConveyorBelt>().on && !Passer.conveyor ) 
         {
-            conveyerBelt.GetComponent<ConveyerBelt>().on = false;
+            conveyorBelt.GetComponent<ConveyorBelt>().on = false;
         }
 
-        Debug.Log(conveyerBelt.GetComponent<ConveyerBelt>().on);
+        Debug.Log(conveyorBelt.GetComponent<ConveyorBelt>().on);
         //Destroy buttons if turned on
-        if (conveyerBelt.GetComponent<ConveyerBelt>().on)
+        if (conveyorBelt.GetComponent<ConveyorBelt>().on)
         {
             Debug.Log("Buttons should be destroyed");
             forwardButton.gameObject.SetActive(false);
             leftButton.gameObject.SetActive(false);
             rightButton.gameObject.SetActive(false);
         }
-        Debug.Log(conveyerBelt.GetComponent<ConveyerBelt>().on);
+        Debug.Log(conveyorBelt.GetComponent<ConveyorBelt>().on);
     }
 
 	void Start () {
@@ -305,7 +346,7 @@ public class GameManager : MonoBehaviour {
 		// Determine size of level
 		DetermineLevelDimensions();
 
-        ScaleDimensionsAndDifficulty();
+        ScaleDifficulty();
 
         DetermineMovementType();
 

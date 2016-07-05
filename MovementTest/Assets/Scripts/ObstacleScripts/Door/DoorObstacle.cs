@@ -1,27 +1,21 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System;
 
-public class DoorObstacle : Obstacle {
+public class DoorObstacle : MonoBehaviour {
 
-    public Sprite openedSprite;
-    public SpriteRenderer sr;
+    private SpriteRenderer sr; // The object's sprite renderer, value assigned in Start()
 
-    private bool opened = false;
+    public Sprite openedSprite; // Opened door Sprite
     
-    public void Start()
-    {
-        
-    }
+	// Initializes the DoorObstacle
+	void Start () {
+        sr = GetComponent<SpriteRenderer>();
+        gameObject.tag = "Blocking";
+	}
 
-    public override bool Moveable()
-    {
-        return opened;
-    }
-
+    // Opens the door
     public void Open()
     {
-        opened = true;
         sr.sprite = openedSprite;
+        gameObject.tag = "Untagged"; // Remove blocking tag that the player script uses to determine if they can move onto the spot
     }
 }
