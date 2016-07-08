@@ -120,26 +120,40 @@ public class GameManager : MonoBehaviour {
         }
 
         // Place the Button and Door if needed
-        
 
-        foreach( Vector2 pos in validator.FindDoorPlacement())
+        Debug.Log("Validator:\n" + validator.ToString());
+
+        ArrayList doorPlaces = validator.FindDoorPlacement();
+
+        foreach ( Vector2 pos in doorPlaces )
         {
             // See if adding the door would make the new layout unsolvable
-            iob = new InitObstacle('d', (int)pos.x, (int)pos.y);
+            // but use an blocking obstacle to test if the door would have any affect
+            iob = new InitObstacle('b', (int)pos.x, (int)pos.y);
+                
             validator.AddObstacle(iob);
             validator.ResetVisited();
+            
+            // If it is not solvable, then placing the door at the location makes it required to pass
             if( !validator.IsSolvable())
             {
                 int timeout = 0;
-                while( (buttonPos == null || buttonPos.x < 0 || buttonPos.x >= boardDim || buttonPos.y < 0 || buttonPos.y >= boardDim) && timeout++ < 50 )
+                iob = new InitObstacle('d', (int)pos.x, (int)pos.y);
+                while( (buttonPos.x < 0 || buttonPos.x >= boardDim || buttonPos.y < 0 || buttonPos.y >= boardDim || buttonPos.x + buttonPos.y < 2) && timeout++ < 50 )
                     buttonPos = (Vector2)validator.GetVisited()[Random.Range(0, validator.GetVisited().Count)]; // save buttonPos for later
-                initQueue.Enqueue(iob);
+                if( timeout < 50)
+                    initQueue.Enqueue(iob);
+                validator.RemoveAtPos(pos); // remove so break works
+                break;
             }
+
+            validator.RemoveAtPos(pos); // remove so it can be solvable going forward
         }
 
         // Determine if a valid configuration was generated
         if ( !debug)
         {
+            validator.ResetVisited();
             if ( !validator.IsSolvable())
             {
 				Debug.Log("Invalid configuration generated!\n" + validator.ToString());
@@ -160,7 +174,8 @@ public class GameManager : MonoBehaviour {
     // Generates the grid by populating it with GameObjects
     private void GenerateGrid()
     {
-        GameObject instantiateGO; 
+        GameObject instantiateGO;
+        bool isDoor = false; //used to determine if the currnetly instantiated object is a door
         foreach ( InitObstacle iob in initQueue)
         {
             instantiateGO = null;
@@ -184,7 +199,7 @@ public class GameManager : MonoBehaviour {
 
                     button.transform.localScale = new Vector3(scale, scale, 1f);
                     InstantiateAtPos(button, buttonPos.x, buttonPos.y);
-
+                    isDoor = true;
                     break;
             }
             if( instantiateGO == null) // Dont instantiate a null GameObject
@@ -197,7 +212,11 @@ public class GameManager : MonoBehaviour {
             }
             
 			instantiateGO.transform.localScale = new Vector3(scale, scale, 1f);
-            InstantiateAtPos(instantiateGO, iob.getRow(), iob.getCol());
+            instantiateGO = InstantiateAtPos(instantiateGO, iob.getRow(), iob.getCol());
+
+            // Deal with door generation linking
+            if (isDoor) PlayerController.door = instantiateGO;
+            isDoor = false;
         }
 
 		GameObject placedLine;
@@ -205,9 +224,9 @@ public class GameManager : MonoBehaviour {
 		// Place grid lines
 		for (float i = .5f; i < boardDim; i += 1) {
 			placedLine = InstantiateAtPos (verticalGridLine, i, boardDim/2f);
-			placedLine.transform.localScale = new Vector3 (.75f, 1.7f, 1);
+			placedLine.transform.localScale = new Vector3 (.8f, 1.7f, 1);
 			placedLine = InstantiateAtPos (verticalGridLine, boardDim/2f, i);
-			placedLine.transform.localScale = new Vector3 (.75f, 1.7f, 1);
+			placedLine.transform.localScale = new Vector3 (.8f, 1.7f, 1);
 			placedLine.transform.Rotate(Vector3.forward * 90);
 
 		}

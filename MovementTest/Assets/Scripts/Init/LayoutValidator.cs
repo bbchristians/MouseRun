@@ -38,6 +38,12 @@ public class LayoutValidator{
         visited = new ArrayList();
     }
 
+    // Removes the InitObstacle at the position
+    public void RemoveAtPos(Vector2 pos)
+    {
+        grid[(int)pos.x][(int)pos.y] = null;
+    }
+
     // Returns the list of visited points in the form of Vector2Ds
     public ArrayList GetVisited()
     {
@@ -80,7 +86,7 @@ public class LayoutValidator{
 
         InitObstacle recentlyPlaced = grid[(int)curPosition.x][(int)curPosition.y];
 
-        return recentlyPlaced == null || recentlyPlaced.CanBeMovedOn();
+        return recentlyPlaced == null || recentlyPlaced.GetCode() == 'd';
     }
 
     // Determines if the goal has been reached
@@ -92,9 +98,9 @@ public class LayoutValidator{
 	// Determines if the configuration is solvable
     public bool IsSolvable()
     {
-        if (this.IsGoal()) return true;
+        if (IsGoal()) return true;
 
-		Stack successors = this.GetSuccessors ();
+		Stack successors = GetSuccessors ();
         foreach( LayoutValidator successor in successors)
         {
             if( successor.IsValid())
@@ -115,9 +121,30 @@ public class LayoutValidator{
         {
             for( int j = 0; j < size; j++)
             {
-                if (grid[i][j] == null) continue; // skip over occupied spaces
-                if ((i == 0 || grid[i - 1][j] != null) && (i == size - 1 || grid[i + 1][j] != null)) places.Add(new Vector2(i, j));
-                else if ((j == 0 || grid[i][j - 1] != null) && (j == size - 1 || grid[i][j + 1] != null)) places.Add(new Vector2(i, j));
+                if (i + j < 2) continue; // prevent placing door directly next to player spawn
+                if (grid[i][j] != null) continue; // skip over occupied spaces
+
+                if (i == 0 || grid[i - 1][j] != null) // If left of obstacle is either oob wall or obstacle
+                {
+                    if(i == size - 1 || grid[i + 1][j] != null) // If right of obstacle is either oob wall or obstacle
+                    {
+                        if( j > 0 && grid[i][j - 1] == null && j < size - 1 && grid[i][j + 1] == null) // If northern and southern spaces can be moved to
+                        {
+                            places.Add(new Vector2(i, j));
+                        }
+                    }
+                }
+                if (j == 0 || grid[i][j - 1] != null) // If southern obstacle is either oob wall or obstacle
+                {
+                    if(j == size - 1 || grid[i][j + 1] != null ) // If northern obstacle is either oob wall or obstacle
+                    {
+                        if (i > 0 && grid[i - 1][j] == null && i < size - 1 && grid[i + 1][j] == null) // If left and right spaces can be moved to
+                        {
+                            places.Add(new Vector2(i, j));
+                        }
+                    }
+                }
+                
             }
         }
 
