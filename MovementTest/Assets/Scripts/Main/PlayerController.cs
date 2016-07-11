@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour {
     private Rigidbody2D rb; // The Rigidbody2D of the player
     private Collider2D cldr; // The Collider2D of the player
     private int direction; // The rotational direction of the player in degrees
-    private bool canMove; // Determines if the player can move
+    private static bool canMove; // Determines if the player can move
     private bool hasCollided; // Determines if the player has collided with another object and is therefor moving backwards
 
     public static Text victoryText; // Text to display the victory message in
@@ -60,19 +60,23 @@ public class PlayerController : MonoBehaviour {
     // Rotates the player left 90 Degrees
     public void Left()
     {
+        canMove = false;
         direction = ((direction - 90)+360) % 360;// +360 to keep degrees positive
         if (debug)
             Debug.Log("direction: " + direction);
         transform.Rotate(Vector3.forward * 90);
+        canMove = true;
     }
 
     // Rotates teh player right 90 degrees
     public void Right()
     {
+        canMove = false;
         direction = (direction + 90) % 360;
         if (debug)
             Debug.Log("direction: " + direction);
         transform.Rotate(Vector3.forward * -90);
+        canMove = true;
     }
 
     // Attempts to move the player in the requested direction
