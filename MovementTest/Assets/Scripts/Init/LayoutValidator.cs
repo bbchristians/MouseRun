@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class LayoutValidator{
 
@@ -48,6 +49,12 @@ public class LayoutValidator{
     public ArrayList GetVisited()
     {
         return visited;
+    }
+
+    // Determines if the 
+    public bool NullAtPos(Vector2 pos)
+    {
+        return grid[(int)pos.x][(int)pos.y] == null;
     }
 
     // Generates a stack containing the successors of the current configuration
@@ -113,9 +120,9 @@ public class LayoutValidator{
 
     // Returns an ArrayList of the possible placements for a door
     // The returned positions will result in a blockage by a door placed in it's location
-    public ArrayList FindDoorPlacement()
+    public List<Vector2> FindDoorPlacement()
     {
-        ArrayList places = new ArrayList();
+        List<Vector2> places = new List<Vector2>();
 
         for ( int i = 0; i < size; i++)
         {

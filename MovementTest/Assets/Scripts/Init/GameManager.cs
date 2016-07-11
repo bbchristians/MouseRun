@@ -3,7 +3,10 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System;
 
 public class GameManager : MonoBehaviour {
 
@@ -123,7 +126,7 @@ public class GameManager : MonoBehaviour {
 
         Debug.Log("Validator:\n" + validator.ToString());
 
-        ArrayList doorPlaces = validator.FindDoorPlacement();
+        IOrderedEnumerable<Vector2> doorPlaces = validator.FindDoorPlacement().OrderBy(e => Random.Range(0, 100));
 
         foreach ( Vector2 pos in doorPlaces )
         {
@@ -137,12 +140,28 @@ public class GameManager : MonoBehaviour {
             // If it is not solvable, then placing the door at the location makes it required to pass
             if( !validator.IsSolvable())
             {
-                int timeout = 0;
                 iob = new InitObstacle('d', (int)pos.x, (int)pos.y);
-                while( (buttonPos.x < 0 || buttonPos.x >= boardDim || buttonPos.y < 0 || buttonPos.y >= boardDim || buttonPos.x + buttonPos.y < 2) && timeout++ < 50 )
-                    buttonPos = (Vector2)validator.GetVisited()[Random.Range(0, validator.GetVisited().Count)]; // save buttonPos for later
-                if( timeout < 50)
+
+                // Determine places the button can be placed
+                List<Vector2> visited = new ArrayList(validator.GetVisited()).Cast<Vector2>().ToList(); // Copy visited list so we can remove elements later
+                visited.RemoveAll(e => e.x < 0 || e.x >= boardDim ); // Remove all x out of bounds
+                visited.RemoveAll(e => e.y < 0 || e.y >= boardDim ); // Remove all y out of bounds
+                visited.RemoveAll(e => e.x + e.y < 2 ); // Remove spaces adjacent to player spawn
+                visited.RemoveAll(e => e == pos); // Remove location of the door itself
+                visited.RemoveAll(e => !validator.NullAtPos(e) ); // Remove all occupied spaces
+
+
+                if( visited.Count > 0)
+                {
+                    buttonPos = visited[Random.Range(0, visited.Count)];
                     initQueue.Enqueue(iob);
+                    Debug.Log("ButtonPos: " + buttonPos);
+                    Debug.Log("DoorPos: " + pos);
+                } else
+                {
+                    Debug.Log("Button not instantiated! No Valid places for it.");
+                }
+                    
                 validator.RemoveAtPos(pos); // remove so break works
                 break;
             }
