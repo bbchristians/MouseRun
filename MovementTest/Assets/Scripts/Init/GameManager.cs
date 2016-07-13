@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System;
 
 public class GameManager : MonoBehaviour {
 
@@ -416,6 +415,8 @@ public class GameManager : MonoBehaviour {
 
         // Form a wall of basic blocks around the outside of the board
         GenerateWall();
+
+        MovementBlock.canMove = true; // Allow player to start moving via movement blocks if they're turned on
 
 	}
 }

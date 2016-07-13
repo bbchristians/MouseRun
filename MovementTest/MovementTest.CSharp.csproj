@@ -75,7 +75,7 @@
     <Compile Include="Assets\Scripts\Main\BackToMenuButton.cs" />
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\Conveyor.cs" />
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\ConveyorBelt.cs" />
-    <Compile Include="Assets\Scripts\Main\ConveyorBelt\Functions\Function1.cs" />
+    <Compile Include="Assets\Scripts\Main\ConveyorBelt\Functions\Function.cs" />
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\Functions\FunctionBar.cs" />
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\Functions\Holder.cs" />
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\MovementBlock.cs" />

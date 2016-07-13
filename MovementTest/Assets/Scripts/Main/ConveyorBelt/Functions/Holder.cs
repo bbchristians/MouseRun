@@ -12,6 +12,7 @@ public class Holder : MonoBehaviour {
 
     public char getMovementBlockCode()
     {
+        if (movementBlock == null) return 'N';
         return movementBlock.GetComponent<MovementBlock>().movementCode;
     }
 
@@ -31,6 +32,7 @@ public class Holder : MonoBehaviour {
     // Activates the button held by the current Holder
     public void ActivateButton()
     {
+        if (movementBlock == null) return;
         movementBlock.GetComponent<MovementBlock>().ActivateButton();
     }
 }
