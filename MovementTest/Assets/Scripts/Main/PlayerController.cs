@@ -142,6 +142,17 @@ public class PlayerController : MonoBehaviour {
             canMove = false;
 
 			backToMenuButton.gameObject.SetActive(true);
+
+
+            // Make a different victory result if in progression mode
+            GameObject progressionManager = GameObject.Find("ProgressionManager");
+            if ( progressionManager != null)
+            {
+                backToMenuButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Next level!";
+                backToMenuButton.onClick.RemoveAllListeners();
+                backToMenuButton.onClick.AddListener(() => progressionManager.GetComponent<ProgressionManager>().LevelUp());
+            }
+
 			Camera.main.GetComponent<BlurOptimized> ().enabled = true;
         }
 	}

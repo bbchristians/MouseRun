@@ -321,7 +321,16 @@ public class GameManager : MonoBehaviour {
 	}
 
     // Determines the level dimensions from the Passer's information
+    // Or by the Progression manager if not playing a custom game
 	private void DetermineLevelDimensions(){
+
+        GameObject progressionManager = GameObject.Find("ProgressionManager");
+        if ( progressionManager != null)
+        {
+            Passer.levelDim = progressionManager.GetComponent<ProgressionManager>().GetLevel() / 3 + 3;
+            Passer.levelDim = Mathf.Min(Passer.levelDim, 8); // Make sure level dimension dont excede 8x8
+        }
+
 		if (Passer.levelDim != 0) {
 			boardDim = Passer.levelDim;
 		} else {
