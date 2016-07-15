@@ -44,11 +44,21 @@ public class Conveyor : MonoBehaviour {
 
     // Places the movement blocks on the conveyor randomly
 	private void GenerateMovementBlocks(){
-		int numBlocks = (int)(Mathf.Pow(Random.Range (1, 64), .25f))-1;
+		int numBlocks = Mathf.Min(Random.Range(0,3), Random.Range(1, 3));
 		int randIndex;
 		GameObject go;
+        int timeout = 0;
 		for (int i = 0; i < numBlocks; i++) {
-			randIndex = Random.Range (0, movementBlockPrefabs.Length);
+            //Determine random placement for new block
+            Vector3 randMove = new Vector3(Random.value * 2 - 1, 0, -1);
+            if (Physics2D.OverlapCircle(transform.position + randMove, .25f))
+            {
+                i--;
+                if (timeout++ > 50) break; // timeout if needed
+                continue;
+            }
+
+            randIndex = Random.Range (0, movementBlockPrefabs.Length);
             // Make change if pity has been reached
             randIndex = (forwardPity >= maxPityTimer) ? 0 : randIndex;
             randIndex = (leftPity >= maxPityTimer) ? 2 : randIndex;
@@ -59,13 +69,13 @@ public class Conveyor : MonoBehaviour {
                 case 0: case 1: forwardPity = 0; rightPity++; leftPity++; break;
                 case 2:         forwardPity++; rightPity++; leftPity = 0; break;
                 case 3:         forwardPity++; rightPity = 0; leftPity++; break;
-
+                default:        forwardPity++; rightPity++; leftPity++; break;
             }
             
             go = (GameObject)Instantiate (movementBlockPrefabs [randIndex], new Vector3 (6, 4, 0), Quaternion.identity);
 			go.transform.parent = transform; // Make the new object a child of current conveyor
 
-            Vector3 randMove = new Vector3(Random.value * 2 - 1, 0, -1);
+            
             go.transform.position += randMove;// Move it so it looks better
         }
 	}
