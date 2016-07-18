@@ -367,22 +367,21 @@ public class GameManager : MonoBehaviour {
     {
         Debug.Log("Passer.conveyor: " + Passer.conveyor);
         conveyorBelt = (GameObject)Instantiate(conveyorBelt, new Vector3(), Quaternion.identity);
-        if ( Passer.conveyor )
-        {
-            conveyorBelt.GetComponent<ConveyorBelt>().on = true;
-        } else if( !conveyorBelt.GetComponent<ConveyorBelt>().on && !Passer.conveyor ) 
-        {
-            conveyorBelt.GetComponent<ConveyorBelt>().on = false;
-        }
 
-        Debug.Log(conveyorBelt.GetComponent<ConveyorBelt>().on);
+        conveyorBelt.GetComponent<ConveyorBelt>().on = Passer.conveyor | conveyorBelt.GetComponent<ConveyorBelt>().on;
+        Debug.Log("Conveyor on: " + conveyorBelt.GetComponent<ConveyorBelt>().on);
+
         //Destroy buttons if turned on
         if (conveyorBelt.GetComponent<ConveyorBelt>().on)
         {
+            conveyorBelt.SetActive(true);
             Debug.Log("Buttons should be destroyed");
             forwardButton.gameObject.SetActive(false);
             leftButton.gameObject.SetActive(false);
             rightButton.gameObject.SetActive(false);
+        } else
+        {
+            conveyorBelt.SetActive(false);
         }
         Debug.Log(conveyorBelt.GetComponent<ConveyorBelt>().on);
     }

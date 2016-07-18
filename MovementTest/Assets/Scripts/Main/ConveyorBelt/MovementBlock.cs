@@ -22,13 +22,13 @@ public class MovementBlock : MonoBehaviour {
 
     // Function game objects to be run if functional button clicked
     // NOTE: These will be null if movementCode != '1' or '2'
-    private GameObject function1;
-    private GameObject function2;
+    // private GameObject function1;
+    // private GameObject function2;
 
     void Start()
     {
-        if (movementCode == '1') function1 = GameObject.Find("Function1");
-        if (movementCode == '2') function2 = GameObject.Find("Function2");
+        // if (movementCode == '1') function1 = GameObject.Find("Function1");
+        // if (movementCode == '2') function2 = GameObject.Find("Function2");
 
     }
 
@@ -50,11 +50,11 @@ public class MovementBlock : MonoBehaviour {
                 break;
 
             case '1': // Function1
-                function1.GetComponent<Function>().CallFunction();
+                GameObject.Find("/ConveyorBelt(Clone)/Function1").GetComponent<Function>().CallFunction();
                 return;
 
             case '2': // Function2
-                function2.GetComponent<Function>().CallFunction();
+                GameObject.Find("/ConveyorBelt(Clone)/Function2").GetComponent<Function>().CallFunction();
                 break;
 
             default:
@@ -81,6 +81,8 @@ public class MovementBlock : MonoBehaviour {
     void OnMouseDrag()
     {
         if (!canMove) return;
+
+        gameObject.transform.parent = null;
 
         Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
 

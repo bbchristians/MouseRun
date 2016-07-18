@@ -30,9 +30,12 @@ public class FunctionBar : MonoBehaviour {
         {
             if (gameObject == null) yield return null;
 
-            Vector2 move = new Vector2(0, -thisMove);
-            rb.MovePosition((Vector2)transform.position + move);
-            remDist -= thisMove;
+            Vector3 move = new Vector3(0, -thisMove, 0);
+            if( rb != null) // Skip over move if the rb2D hasnt been instantiated yet
+            {
+                rb.MovePosition(transform.position + move);
+                remDist -= thisMove;
+            }
 
             yield return new WaitForFixedUpdate(); // Wait for Fixed Update to assure MovePosition functions correctly
 

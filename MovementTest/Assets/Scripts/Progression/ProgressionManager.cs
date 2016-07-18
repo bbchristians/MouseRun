@@ -17,6 +17,7 @@ public class ProgressionManager : MonoBehaviour {
     public void PlayEasy()
     {
         level = 1;
+        Passer.conveyor = false;
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
     }
@@ -25,6 +26,7 @@ public class ProgressionManager : MonoBehaviour {
     public void PlayNormal()
     {
         level = 6;
+        Passer.conveyor = false;
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
     }
@@ -33,6 +35,7 @@ public class ProgressionManager : MonoBehaviour {
     public void PlayHard()
     {
         level = 11;
+        Passer.conveyor = true;
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
     }
@@ -42,6 +45,7 @@ public class ProgressionManager : MonoBehaviour {
         return level;
     }
 
+    // Increases the level of the player's progression
     public void LevelUp()
     {
         levelsCompleted++;
@@ -50,7 +54,13 @@ public class ProgressionManager : MonoBehaviour {
             // Player wins
             SceneManager.LoadScene("Title");
         }
+
         level++;
+        if( level >= 10)
+        {
+            Passer.conveyor = true;
+        }
+
         SceneManager.LoadScene("Main");
     }
 }

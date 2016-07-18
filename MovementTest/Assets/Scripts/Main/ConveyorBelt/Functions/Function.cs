@@ -39,7 +39,7 @@ public class Function : MonoBehaviour {
     {
         foreach (Transform t in transform)
         {
-            MovementBlock.canMove = false; // prevent other movement blocks from being clicked while the function in running
+            //MovementBlock.canMove = false; // prevent other movement blocks from being clicked while the function in running
 
             // Start moving the function bar
             bar.GetComponent<FunctionBar>().moveDownOne();
