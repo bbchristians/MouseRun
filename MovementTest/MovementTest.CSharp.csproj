@@ -87,6 +87,8 @@
     <Compile Include="Assets\Scripts\ObstacleScripts\Obstacles\Obstacle.cs" />
     <Compile Include="Assets\Scripts\ObstacleScripts\Obstacles\OutOfBoundsObstacle.cs" />
     <Compile Include="Assets\Scripts\Progression\ProgressionManager.cs" />
+    <Compile Include="Assets\Scripts\Title\CoinCounter.cs" />
+    <Compile Include="Assets\Scripts\Title\DontDestroyCanvas.cs" />
     <Compile Include="Assets\Scripts\Title\LevelDimensions.cs" />
     <Compile Include="Assets\Scripts\Title\Passer.cs" />
     <Compile Include="Assets\Scripts\Title\PlayButton.cs" />

@@ -93,7 +93,7 @@ public class LayoutValidator{
 
         InitObstacle recentlyPlaced = grid[(int)curPosition.x][(int)curPosition.y];
 
-        return recentlyPlaced == null || recentlyPlaced.GetCode() == 'd';
+        return recentlyPlaced == null;
     }
 
     // Determines if the goal has been reached
@@ -157,6 +157,29 @@ public class LayoutValidator{
 
         return places;
     }
+
+    public List<Vector2> FindCoinPlacement()
+    {
+        List<Vector2> list = new List<Vector2>();
+
+        FindReachablePlaces(list);
+
+        return list;
+    }
+
+    protected void FindReachablePlaces(List<Vector2> list)
+    {
+        Stack successors = GetSuccessors();
+        foreach( LayoutValidator successor in successors)
+        {
+            if ( successor.IsValid() && !list.Contains(successor.curPosition) )
+            {
+                list.Add(successor.curPosition);
+                successor.FindReachablePlaces(list);
+            }
+        }
+    }
+    
 
     // ToString for debugging purposes
 	public override string ToString(){

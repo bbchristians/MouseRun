@@ -17,6 +17,7 @@ public class ProgressionManager : MonoBehaviour {
     public void PlayEasy()
     {
         level = 1;
+        levelsCompleted = 0;
         Passer.conveyor = false;
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
@@ -26,6 +27,7 @@ public class ProgressionManager : MonoBehaviour {
     public void PlayNormal()
     {
         level = 6;
+        levelsCompleted = 0;
         Passer.conveyor = false;
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
@@ -35,6 +37,7 @@ public class ProgressionManager : MonoBehaviour {
     public void PlayHard()
     {
         level = 11;
+        levelsCompleted = 0;
         Passer.conveyor = true;
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
@@ -49,18 +52,30 @@ public class ProgressionManager : MonoBehaviour {
     public void LevelUp()
     {
         levelsCompleted++;
+        Debug.Log("Levels Completed: " + levelsCompleted + ", Current Level: " + level);
         if( levelsCompleted >= 10)
         {
             // Player wins
             SceneManager.LoadScene("Title");
+            return;
         }
 
         level++;
-        if( level >= 10)
+        if( level > 10)
         {
             Passer.conveyor = true;
         }
 
         SceneManager.LoadScene("Main");
+
+        // Destroy duplicate persistant objects
+        Destroy(GameObject.Find("Passer"));
+        Destroy(GameObject.Find("GoldCountCanvas"));
+    }
+
+    // Returns the appropriate number of coins for the level
+    public int GetNumberOfCoins()
+    {
+        return ((levelsCompleted/2)*Passer.levelDim/5);
     }
 }

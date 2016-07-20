@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour {
     public GameObject[] basicObstaclePrefabs; // The BasicObstacle prefabs
     public GameObject[] buttonDoorPrefabs; // The button and door obstacle prefabs
     public GameObject[] wallPrefabs; // The wall prefabs
+    public GameObject[] coinPrefabs; // Coin prefabs
 	public GameObject[] staticPrefabs; // Objects to place like the Player and the Finish
 	public GameObject verticalGridLine; // Vertical grid line to add a grid to the background
 	public GameObject horizontalGridLine; // Horizontal grid line to add a grid to the background
@@ -168,6 +169,24 @@ public class GameManager : MonoBehaviour {
             validator.RemoveAtPos(pos); // remove so it can be solvable going forward
         }
 
+        // Place coins if in progression mode
+        GameObject progressionManager = GameObject.Find("ProgressionManager");
+        int numCoins;
+        if (progressionManager != null)
+        {
+            numCoins = progressionManager.GetComponent<ProgressionManager>().GetNumberOfCoins();
+            List<Vector2> coinPlaces = validator.FindCoinPlacement();
+            Vector2 curPlace;
+            int randomPos;
+            for (int i = 0; i < numCoins && coinPlaces.Count > 0; i++)
+            {
+                randomPos = Random.Range(0, coinPlaces.Count - 1);
+                curPlace = coinPlaces[randomPos];
+                initQueue.Enqueue(new InitObstacle('c', (int)curPlace.x, (int)curPlace.y));
+                coinPlaces.RemoveAt(randomPos);
+            }
+        }
+
         // Determine if a valid configuration was generated
         if ( !debug)
         {
@@ -218,6 +237,8 @@ public class GameManager : MonoBehaviour {
                     button.transform.localScale = new Vector3(scale, scale, 1f);
                     InstantiateAtPos(button, buttonPos.x, buttonPos.y);
                     isDoor = true;
+                    break;
+                case 'c': instantiateGO = RandomFromArray(coinPrefabs);
                     break;
             }
             if( instantiateGO == null) // Dont instantiate a null GameObject

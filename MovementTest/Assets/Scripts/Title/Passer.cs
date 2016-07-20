@@ -25,7 +25,7 @@ public class Passer : MonoBehaviour {
 
     // Prevents the Passer from being destroyed so that it can transfer information to the Main scene
 	void Awake() {
-		DontDestroyOnLoad(this);
+        DontDestroyOnLoad(this);
 	}
 
     // Sets the difficulty of the level to be generated to easy
@@ -54,9 +54,13 @@ public class Passer : MonoBehaviour {
 
     // Starts the Passer with the normal difficulty selected
 	void Start(){
-		easyButton.GetComponent<Image>().color = notSelected;
-		normalButton.GetComponent<Image>().color = selected;
-		hardButton.GetComponent<Image>().color = notSelected;
+        if (SceneManager.GetActiveScene().name == "Title")
+        {
+            if (easyButton == null) Destroy(this.gameObject); // it is the old passer
+            easyButton.GetComponent<Image>().color = notSelected;
+            normalButton.GetComponent<Image>().color = selected;
+            hardButton.GetComponent<Image>().color = notSelected;
+        }
 	}
 
     // Toggles the conveyor on or off

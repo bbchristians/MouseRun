@@ -112,7 +112,11 @@ public class PlayerController : MonoBehaviour {
                 }
                 else if (hit.collider.gameObject.tag == "Button")
                 {
-                        door.GetComponent<DoorObstacle>().Open();
+                    door.GetComponent<DoorObstacle>().Open();
+                } else if (hit.collider.gameObject.tag == "Coin")
+                {
+                    CoinCounter.AddCoin();
+                    Destroy(hit.collider.gameObject);
                 }
 			}
             
