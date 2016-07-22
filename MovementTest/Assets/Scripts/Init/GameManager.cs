@@ -174,8 +174,12 @@ public class GameManager : MonoBehaviour {
         int numCoins;
         if (progressionManager != null)
         {
+            validator.ResetVisited();
             numCoins = progressionManager.GetComponent<ProgressionManager>().GetNumberOfCoins();
             List<Vector2> coinPlaces = validator.FindCoinPlacement();
+            coinPlaces.Remove(new Vector2(0, 0));
+            coinPlaces.Remove(new Vector2(boardDim - 1, boardDim - 1));
+
             Vector2 curPlace;
             int randomPos;
             for (int i = 0; i < numCoins && coinPlaces.Count > 0; i++)
@@ -348,11 +352,9 @@ public class GameManager : MonoBehaviour {
         GameObject progressionManager = GameObject.Find("ProgressionManager");
         if ( progressionManager != null)
         {
-            Passer.levelDim = progressionManager.GetComponent<ProgressionManager>().GetLevel() / 3 + 3;
-            Passer.levelDim = Mathf.Min(Passer.levelDim, 8); // Make sure level dimension dont excede 8x8
-        }
-
-		if (Passer.levelDim != 0) {
+            boardDim = progressionManager.GetComponent<ProgressionManager>().GetLevel() / 3 + 3;
+            boardDim = Mathf.Min(boardDim, 8); // Make sure level dimension dont excede 8x8
+        } else if (Passer.levelDim != 0) {
 			boardDim = Passer.levelDim;
 		} else {
 			boardDim = 5;

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class CoinCounter : MonoBehaviour {
 
@@ -9,15 +9,6 @@ public class CoinCounter : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-        DontDestroyOnLoad(transform.gameObject);
-        DontDestroyOnLoad(GameObject.Find("GoldCountCanvas"));
-        count = 0;
-    }
-
-    void Awake()
-    {
-        DontDestroyOnLoad(transform.gameObject);
-        DontDestroyOnLoad(GameObject.Find("GoldCountCanvas"));
     }
 
     // Adds 5 coins to the coin counter
@@ -30,6 +21,8 @@ public class CoinCounter : MonoBehaviour {
     void Update()
     {
         GameObject.Find("/GoldCountCanvas/GoldCount/Number").GetComponent<Text>().text = "" + count;
+        if (Input.GetKey("m"))
+            AddCoin();
     }
 	
 	

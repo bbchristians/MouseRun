@@ -18,7 +18,9 @@ public class ProgressionManager : MonoBehaviour {
     {
         level = 1;
         levelsCompleted = 0;
+        Debug.Log("level: " + level + ", levelsCompleted: " + levelsCompleted);
         Passer.conveyor = false;
+        GameObject.Find("Passer").GetComponent<Passer>().Easy();
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
     }
@@ -28,7 +30,9 @@ public class ProgressionManager : MonoBehaviour {
     {
         level = 6;
         levelsCompleted = 0;
+        Debug.Log("level: " + level + ", levelsCompleted: " + levelsCompleted);
         Passer.conveyor = false;
+        GameObject.Find("Passer").GetComponent<Passer>().Normal();
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
     }
@@ -39,6 +43,7 @@ public class ProgressionManager : MonoBehaviour {
         level = 11;
         levelsCompleted = 0;
         Passer.conveyor = true;
+        GameObject.Find("Passer").GetComponent<Passer>().Hard();
         DontDestroyOnLoad(this);
         SceneManager.LoadScene("Main");
     }
@@ -57,6 +62,8 @@ public class ProgressionManager : MonoBehaviour {
         {
             // Player wins
             SceneManager.LoadScene("Title");
+            levelsCompleted = 0;
+            level = 0;
             return;
         }
 
@@ -69,13 +76,19 @@ public class ProgressionManager : MonoBehaviour {
         SceneManager.LoadScene("Main");
 
         // Destroy duplicate persistant objects
-        Destroy(GameObject.Find("Passer"));
-        Destroy(GameObject.Find("GoldCountCanvas"));
     }
 
     // Returns the appropriate number of coins for the level
     public int GetNumberOfCoins()
     {
         return ((levelsCompleted/2)*Passer.levelDim/5);
+    }
+
+    void Update()
+    {
+        if( Input.GetKey("n"))
+        {
+            LevelUp();
+        }
     }
 }
