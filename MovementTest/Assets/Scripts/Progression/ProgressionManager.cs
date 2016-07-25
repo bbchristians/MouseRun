@@ -62,6 +62,7 @@ public class ProgressionManager : MonoBehaviour {
         {
             // Player wins
             SceneManager.LoadScene("Title");
+            Destroy(this.gameObject);
             levelsCompleted = 0;
             level = 0;
             return;
@@ -86,7 +87,7 @@ public class ProgressionManager : MonoBehaviour {
 
     void Update()
     {
-        if( Input.GetKey("n"))
+        if( Input.GetKey("n") && SceneManager.GetActiveScene().name == "Main")
         {
             LevelUp();
         }
