@@ -9,7 +9,6 @@ public class DoorObstacle : MonoBehaviour {
 	// Initializes the DoorObstacle
 	void Start () {
         sr = GetComponent<SpriteRenderer>();
-        gameObject.tag = "Blocking";
 	}
 
     // Opens the door

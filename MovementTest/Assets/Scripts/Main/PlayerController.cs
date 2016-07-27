@@ -65,6 +65,7 @@ public class PlayerController : MonoBehaviour {
         if (debug)
             Debug.Log("direction: " + direction);
         transform.Rotate(Vector3.forward * 90);
+
         canMove = true;
     }
 
@@ -76,6 +77,7 @@ public class PlayerController : MonoBehaviour {
         if (debug)
             Debug.Log("direction: " + direction);
         transform.Rotate(Vector3.forward * -90);
+
         canMove = true;
     }
 
@@ -90,8 +92,9 @@ public class PlayerController : MonoBehaviour {
         canMove = false;// Prevent player from beginning another move while they are moving
         float remDist = distance; // The remaining distance to move the player
         float thisMove; // Holds how much the player will move each frame
-        // Player begins moving slow, and picks up speed until they reach their final position
-        while( remDist > 0)
+        Vector3 startPos = this.gameObject.transform.position;
+        // Player begins movithis.gameObject.transform.position;ng slow, and picks up speed until they reach their final position
+        while ( remDist > 0)
         {
             thisMove = Mathf.Round((distance - remDist) * 100f) / 100f; // Round
             thisMove = Mathf.Max(thisMove, .01f); // Max is used to allow the movement to start
@@ -101,10 +104,18 @@ public class PlayerController : MonoBehaviour {
 			foreach (RaycastHit2D hit in hits) {
                 if( debug ) Debug.Log(hit.collider.gameObject.tag + ", " + hasCollided);
                 
-                if(hit.collider.gameObject.tag == "Blocking" && !hasCollided)
+                if((hit.collider.gameObject.tag == "Blocking" || hit.collider.gameObject.tag == "Door") && !hasCollided)
                 {
                     hasCollided = true; // Prevents multiple collisions fro happening
                     if (debug) Debug.Log("Collision Detected!");
+                    if (hit.collider.gameObject.tag == "Door")
+                    {
+                        ThoughtBubble.startPos = startPos;
+                        Debug.Log("Saving position as: " + ThoughtBubble.startPos);
+                        ThoughtBubble.stillMoving = true;
+                        Debug.Log("Displaying Thought Bubble...");
+                        gameObject.GetComponent<ThoughtBubble>().DisplayBubble();
+                    }
 
                     StartCoroutine(SmoothMove(-rowMove, -colMove, distance - remDist)); // Move in reverse direction until at original position
 
@@ -113,11 +124,13 @@ public class PlayerController : MonoBehaviour {
                 else if (hit.collider.gameObject.tag == "Button")
                 {
                     door.GetComponent<DoorObstacle>().Open();
-                } else if (hit.collider.gameObject.tag == "Coin")
+                }
+                else if (hit.collider.gameObject.tag == "Coin")
                 {
                     CoinCounter.AddCoin();
                     Destroy(hit.collider.gameObject);
                 }
+                
 			}
             
             Vector2 move = new Vector2(colMove * thisMove, rowMove * thisMove);
@@ -136,6 +149,7 @@ public class PlayerController : MonoBehaviour {
         }
         canMove = true; // allow the player to move again
         hasCollided = false; // Resolve any collisions
+        ThoughtBubble.stillMoving = false;
     }
 
     // Checks for collision in victory collider
