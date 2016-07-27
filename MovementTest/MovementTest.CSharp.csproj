@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\Functions\FunctionBar.cs" />
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\Functions\Holder.cs" />
     <Compile Include="Assets\Scripts\Main\ConveyorBelt\MovementBlock.cs" />
+    <Compile Include="Assets\Scripts\Main\ConveyorBelt\SpeedButtons.cs" />
     <Compile Include="Assets\Scripts\Main\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Main\ThoughtBubble.cs" />
     <Compile Include="Assets\Scripts\ObstacleScripts\Door\ButtonObstacle.cs" />

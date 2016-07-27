@@ -32,9 +32,9 @@ public class Conveyor : MonoBehaviour {
 		// Player begins moving slow, and picks up speed until they reach their final position
 		while( remDist > 0)
 		{
-			Vector2 move = new Vector2(0, -thisMove);
+			Vector2 move = new Vector2(0, -thisMove*speedScale);
 			rb.MovePosition((Vector2)transform.position + move);
-			remDist -= thisMove;
+			remDist -= thisMove*speedScale;
 
 			yield return new WaitForFixedUpdate(); // Wait for Fixed Update to assure MovePosition functions correctly
 

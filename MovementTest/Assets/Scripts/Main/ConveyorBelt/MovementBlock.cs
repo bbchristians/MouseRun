@@ -27,8 +27,6 @@ public class MovementBlock : MonoBehaviour {
 
     void Start()
     {
-        // if (movementCode == '1') function1 = GameObject.Find("Function1");
-        // if (movementCode == '2') function2 = GameObject.Find("Function2");
 
     }
 
