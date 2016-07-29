@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityStandardAssets.ImageEffects;
+using UnityEngine.Events;
 using System.Collections;
 
 public class PlayerController : MonoBehaviour {
@@ -167,8 +168,8 @@ public class PlayerController : MonoBehaviour {
             if ( progressionManager != null)
             {
                 backToMenuButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "Next level!";
-                backToMenuButton.onClick.RemoveAllListeners();
-                backToMenuButton.onClick.AddListener(() => progressionManager.GetComponent<ProgressionManager>().LevelUp());
+                backToMenuButton.GetComponent<Button>().onClick.RemoveAllListeners();
+                backToMenuButton.GetComponent<Button>().onClick.AddListener(() => progressionManager.GetComponent<ProgressionManager>().LevelUp());
             }
 
 			Camera.main.GetComponent<BlurOptimized> ().enabled = true;

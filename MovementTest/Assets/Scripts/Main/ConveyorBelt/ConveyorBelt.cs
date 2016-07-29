@@ -5,11 +5,10 @@ public class ConveyorBelt : MonoBehaviour {
 	public GameObject conveyorPrefab; // The conveyor prefab to build the conveyor belt
     public bool on; // Determines if the conveyorbelt is on
 
-    private float speedScale;
+    private static float speedScale = 1;
 
 	// Starts the conveyor if it is turned on
 	void Start () {
-        speedScale = 1;
         if( on )
 		    InvokeRepeating ("NextConveyor", 0f, 1.45f / speedScale);
 	}

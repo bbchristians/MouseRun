@@ -10,6 +10,7 @@ public class ProgressionManager : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        DontDestroyOnLoad(this.gameObject);
         level = 1;
 	}
 
@@ -62,9 +63,7 @@ public class ProgressionManager : MonoBehaviour {
         {
             // Player wins
             SceneManager.LoadScene("Title");
-            Destroy(this.gameObject);
-            levelsCompleted = 0;
-            level = 0;
+            ResetAndDestroy();
             return;
         }
 
@@ -77,6 +76,15 @@ public class ProgressionManager : MonoBehaviour {
         SceneManager.LoadScene("Main");
 
         // Destroy duplicate persistant objects
+    }
+
+    // Resets the Progression Manager
+    // To be used when returing back to the main menu
+    public void ResetAndDestroy()
+    {
+        Destroy(this.gameObject);
+        levelsCompleted = 0;
+        level = 0;
     }
 
     // Returns the appropriate number of coins for the level
